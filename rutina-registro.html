@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#eef0f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131519" media="(prefers-color-scheme: dark)">
+<title>Rutina 4 días — Registro</title>
+<style>
+  :root {
+    --ground: #eef0f2;
+    --surface: #ffffff;
+    --ink: #171a1f;
+    --ink-soft: #565d68;
+    --line: #d7dbe0;
+    --accent: #1f4fd8;
+    --accent-ink: #ffffff;
+    --accent-soft: #e3e9fb;
+    --up: #157347;
+    --up-soft: #dcf2e6;
+    --field: #f4f6f8;
+    --shadow: 0 1px 3px rgba(23, 26, 31, .08);
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #131519;
+      --surface: #1c1f25;
+      --ink: #e8eaee;
+      --ink-soft: #9aa2ad;
+      --line: #31353d;
+      --accent: #7d9dff;
+      --accent-ink: #10151f;
+      --accent-soft: #232c42;
+      --up: #4cc38a;
+      --up-soft: #16301f;
+      --field: #24272e;
+      --shadow: none;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 12px 96px; }
+
+  header.app {
+    padding: 20px 4px 12px;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  }
+  header.app h1 {
+    margin: 0;
+    font-size: 22px; font-weight: 800; letter-spacing: -.02em;
+    text-wrap: balance;
+  }
+  header.app .sub {
+    font-size: 12px; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: .08em; white-space: nowrap;
+  }
+
+  nav.days {
+    position: sticky; top: 0; z-index: 10;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+    padding: 8px 0;
+    background: var(--ground);
+  }
+  nav.days button {
+    appearance: none; border: 1px solid var(--line); background: var(--surface);
+    color: var(--ink-soft); border-radius: 8px;
+    padding: 8px 2px; cursor: pointer;
+    font: 700 12px/1.2 system-ui, sans-serif;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  nav.days button .tag { display: block; font-size: 10px; font-weight: 500; letter-spacing: .06em; margin-top: 2px; }
+  nav.days button.on {
+    background: var(--accent); border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  nav.days button:focus-visible, .btn:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  section.day { display: none; }
+  section.day.on { display: block; }
+  .day-note { font-size: 13px; color: var(--ink-soft); margin: 8px 4px 12px; }
+
+  .ex {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    margin-bottom: 12px; padding: 14px 14px 12px;
+  }
+  .ex h3 { margin: 0 0 6px; font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip {
+    font-size: 11px; font-weight: 600; letter-spacing: .04em;
+    color: var(--ink-soft); background: var(--field);
+    border-radius: 999px; padding: 3px 9px;
+  }
+  .chip.scheme { color: var(--accent); background: var(--accent-soft); }
+  .chip.up { color: var(--up); background: var(--up-soft); }
+  button.chip-btn {
+    appearance: none; border: 1px solid var(--accent); cursor: pointer;
+    color: var(--accent); background: var(--surface);
+    font: 600 11px/1.5 system-ui, sans-serif; letter-spacing: .04em;
+    border-radius: 999px; padding: 2px 9px;
+  }
+
+  #restPill {
+    position: fixed; left: 50%; transform: translateX(-50%); bottom: 84px; z-index: 25;
+    display: none; appearance: none; border: none; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink);
+    font: 700 16px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    padding: 14px 22px; border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .25);
+    white-space: nowrap;
+  }
+  #restPill.show { display: block; }
+
+  .sets { display: grid; grid-template-columns: 44px 1fr 1fr; gap: 6px; align-items: center; }
+  .sets .h {
+    font-size: 10px; font-weight: 600; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: .08em; padding-left: 2px;
+  }
+  .sets .n {
+    font: 600 13px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    color: var(--ink-soft); text-align: center;
+  }
+  .sets input {
+    width: 100%; min-width: 0;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--field); color: var(--ink);
+    font: 500 16px/1 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    padding: 10px 8px; text-align: center;
+  }
+  .sets input::placeholder { color: var(--ink-soft); opacity: .55; }
+
+  .last { margin-top: 10px; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .last b { color: var(--ink); font-weight: 600; }
+
+  details.hist { margin-top: 8px; }
+  details.hist summary {
+    cursor: pointer; font-size: 12px; color: var(--accent); font-weight: 600;
+    list-style: none; padding: 2px 0;
+  }
+  details.hist summary::-webkit-details-marker { display: none; }
+  details.hist table {
+    width: 100%; border-collapse: collapse; margin-top: 6px;
+    font: 400 12px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  details.hist td { padding: 3px 6px 3px 0; color: var(--ink-soft); vertical-align: top; }
+  details.hist td:last-child { color: var(--ink); }
+
+  .savebar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+    background: linear-gradient(to top, var(--ground) 65%, transparent);
+    padding: 18px 12px 14px;
+  }
+  .savebar .inner { max-width: 560px; margin: 0 auto; display: flex; gap: 8px; }
+  .btn {
+    appearance: none; cursor: pointer; border-radius: 10px;
+    font: 700 14px/1 system-ui, sans-serif; letter-spacing: .01em;
+    padding: 14px 16px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink);
+  }
+  .btn.primary { flex: 1; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .tools {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 4px 8px; align-items: center;
+  }
+  .tools .btn { font-size: 12px; padding: 9px 12px; }
+  .tools input[type="file"] { display: none; }
+
+  details.guide {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px 14px; margin: 12px 0;
+    font-size: 14px;
+  }
+  details.guide summary { cursor: pointer; font-weight: 700; font-size: 14px; }
+  details.guide ul { margin: 10px 0 4px; padding-left: 20px; color: var(--ink-soft); }
+  details.guide li { margin-bottom: 6px; }
+  details.guide b { color: var(--ink); }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 142px; transform: translateX(-50%) translateY(8px);
+    background: var(--ink); color: var(--ground);
+    font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 999px;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    white-space: nowrap; z-index: 30;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    #toast { transition: none; }
+  }
+
+  @media print {
+    nav.days, .savebar, .tools, #toast, details.hist { display: none !important; }
+    section.day { display: block !important; break-inside: avoid; }
+    section.day::before {
+      content: attr(data-title);
+      display: block; font-size: 15px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 8px;
+    }
+    .ex { box-shadow: none; break-inside: avoid; }
+    .sets input { border: 1px solid #bbb; background: #fff; min-height: 20px; }
+    body { background: #fff; color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="app">
+    <h1>Rutina 4 días</h1>
+    <span class="sub">Torso · Pierna</span>
+  </header>
+
+  <nav class="days" id="tabs" aria-label="Día de entrenamiento"></nav>
+  <div id="dayHost"></div>
+
+  <div class="tools">
+    <button class="btn" id="exportBtn" type="button">Copia de seguridad</button>
+    <label class="btn" for="importFile">Restaurar copia</label>
+    <input type="file" id="importFile" accept="application/json">
+  </div>
+
+  <details class="guide">
+    <summary>Cómo progresar (doble progresión)</summary>
+    <ul>
+      <li><b>Rellena kg y reps</b> de cada serie y pulsa <b>Guardar sesión</b> al acabar el día.</li>
+      <li>La próxima vez verás la <b>última sesión</b> como referencia en gris: iguálala o supérala en reps.</li>
+      <li>Cuando llegues al <b>tope del rango en todas las series</b>, la app te marcará <b>▲ Sube peso</b>: añade 2,5 kg (torso) o 5 kg (pierna) y vuelve al mínimo del rango.</li>
+      <li><b>RIR</b> = reps que te dejas en recámara. RIR 1-2: para cuando te queden 1-2 reps limpias.</li>
+      <li><b>Temporizador:</b> toca el chip ⏱ de un ejercicio al acabar la serie y sonará cuando toque la siguiente. Tócalo de nuevo (abajo) para pararlo. Mantén la pantalla encendida: bloqueado, el móvil puede silenciar el aviso.</li>
+      <li><b>Descarga</b> cada 6-8 semanas: 1 semana con la mitad de series y −20 % de peso.</li>
+      <li>Haz una <b>copia de seguridad</b> de vez en cuando: los datos viven en este navegador.</li>
+    </ul>
+  </details>
+</div>
+
+<div class="savebar">
+  <div class="inner">
+    <button class="btn primary" id="saveBtn" type="button">Guardar sesión</button>
+  </div>
+</div>
+
+<button id="restPill" type="button" aria-label="Temporizador de descanso, tocar para parar"></button>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PLAN = [
+    { id: 'torsoA', name: 'Torso A', tag: 'pesado', note: 'Día pesado: descansos largos, cargas altas.',
+      ex: [
+        { id: 'press-maquina', name: 'Press de pecho en máquina (o multipower)', sets: 4, rmin: 6, rmax: 8, rest: '3 min', rir: 'RIR 1-2' },
+        { id: 'remo-barra', name: 'Remo en máquina (apoyo al pecho)', sets: 4, rmin: 6, rmax: 8, rest: '2-3 min', rir: 'RIR 1-2' },
+        { id: 'press-militar', name: 'Press de hombro en máquina sentado', sets: 3, rmin: 6, rmax: 8, rest: '2-3 min', rir: 'RIR 1-2' },
+        { id: 'dominadas-lastre', name: 'Dominadas asistidas en máquina', sets: 3, rmin: 6, rmax: 8, rest: '2-3 min', rir: 'RIR 1-2', note: 'kg = contrapeso', hint: '▲ Quita ayuda' },
+        { id: 'curl-barra', name: 'Curl de bíceps en polea baja', sets: 3, rmin: 8, rmax: 10, rest: '90 s', rir: 'RIR 1' },
+        { id: 'press-frances', name: 'Extensión de tríceps en polea (sobre la cabeza)', sets: 3, rmin: 8, rmax: 10, rest: '90 s', rir: 'RIR 1' }
+      ] },
+    { id: 'piernaA', name: 'Pierna A', tag: 'pesado', note: 'Día pesado: descansos largos, cargas altas.',
+      ex: [
+        { id: 'hack-squat', name: 'Hack squat (o sentadilla en multipower)', sets: 4, rmin: 6, rmax: 8, rest: '3 min', rir: 'RIR 1-2' },
+        { id: 'rumano-multi', name: 'Peso muerto rumano en multipower', sets: 3, rmin: 6, rmax: 8, rest: '2-3 min', rir: 'RIR 1-2' },
+        { id: 'prensa', name: 'Prensa', sets: 3, rmin: 8, rmax: 10, rest: '2 min', rir: 'RIR 1-2' },
+        { id: 'femoral-sentado-a', name: 'Curl femoral sentado', sets: 3, rmin: 8, rmax: 10, rest: '90 s', rir: 'RIR 1' },
+        { id: 'gemelo-pie', name: 'Gemelo de pie', sets: 4, rmin: 8, rmax: 10, rest: '90 s', rir: 'RIR 0-1' },
+        { id: 'abs-a', name: 'Rueda abdominal o crunch en polea', sets: 3, rmin: 10, rmax: 12, rest: '60 s', rir: 'RIR 1' }
+      ] },
+    { id: 'torsoB', name: 'Torso B', tag: 'volumen', note: 'Día de volumen: más reps, cerca del fallo en aislamiento.',
+      ex: [
+        { id: 'inclinado-manc', name: 'Press inclinado con mancuernas', sets: 4, rmin: 8, rmax: 10, rest: '2 min', rir: 'RIR 1-2' },
+        { id: 'jalon', name: 'Jalón al pecho (o dominadas)', sets: 4, rmin: 10, rmax: 12, rest: '2 min', rir: 'RIR 1-2' },
+        { id: 'remo-polea', name: 'Remo en polea sentado', sets: 3, rmin: 10, rmax: 12, rest: '2 min', rir: 'RIR 1' },
+        { id: 'cruces-polea', name: 'Cruces en polea', sets: 3, rmin: 12, rmax: 15, rest: '60-90 s', rir: 'RIR 0-1' },
+        { id: 'laterales', name: 'Elevaciones laterales', sets: 4, rmin: 12, rmax: 15, rest: '60 s', rir: 'RIR 0-1' },
+        { id: 'curl-inclinado', name: 'Curl inclinado con mancuernas', sets: 3, rmin: 10, rmax: 12, rest: '60-90 s', rir: 'RIR 0-1' },
+        { id: 'triceps-polea', name: 'Extensión de tríceps en polea', sets: 3, rmin: 12, rmax: 15, rest: '60 s', rir: 'RIR 0-1' }
+      ] },
+    { id: 'piernaB', name: 'Pierna B', tag: 'volumen', note: 'Día de volumen: más reps, cerca del fallo en aislamiento.',
+      ex: [
+        { id: 'bulgara-multi', name: 'Sentadilla búlgara en multipower (o prensa unilateral)', sets: 3, rmin: 8, rmax: 10, rest: '2 min', rir: 'RIR 1-2', per: 'por pierna' },
+        { id: 'hip-thrust', name: 'Hip thrust en máquina', sets: 3, rmin: 8, rmax: 12, rest: '2 min', rir: 'RIR 1-2' },
+        { id: 'femoral-sentado-b', name: 'Curl femoral sentado', sets: 3, rmin: 10, rmax: 12, rest: '90 s', rir: 'RIR 1' },
+        { id: 'ext-cuadriceps', name: 'Extensión de cuádriceps', sets: 3, rmin: 12, rmax: 15, rest: '60-90 s', rir: 'RIR 0-1' },
+        { id: 'gemelo-sentado', name: 'Gemelo sentado', sets: 4, rmin: 12, rmax: 15, rest: '60 s', rir: 'RIR 0-1' },
+        { id: 'abs-b', name: 'Elevaciones de piernas colgado', sets: 3, rmin: 10, rmax: 15, rest: '60 s', rir: 'RIR 1' }
+      ] }
+  ];
+
+  var LOG_KEY = 'rutina4.log.v1';
+  var DRAFT_KEY = 'rutina4.draft.v1';
+  var log = load(LOG_KEY, {});     // exId -> [{ d: 'dd/mm/aa', s: [[kg, reps], ...] }, ...] newest first
+  var draft = load(DRAFT_KEY, {}); // exId -> [[kg, reps], ...]
+  var activeDay = null;
+
+  function load(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function persist(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+
+  function lastEntry(exId) {
+    return (log[exId] && log[exId][0]) || null;
+  }
+
+  function hitTop(ex, entry) {
+    if (!entry || entry.s.length < ex.sets) return false;
+    for (var i = 0; i < entry.s.length; i++) {
+      if (!(entry.s[i][1] >= ex.rmax)) return false;
+    }
+    return true;
+  }
+
+  function fmtEntry(entry) {
+    var kgs = entry.s.map(function (s) { return s[0]; });
+    var reps = entry.s.map(function (s) { return s[1]; });
+    var sameKg = kgs.every(function (k) { return k === kgs[0]; });
+    return sameKg
+      ? (kgs[0] + ' kg × ' + reps.join('/'))
+      : entry.s.map(function (s) { return s[0] + '×' + s[1]; }).join(' · ');
+  }
+
+  // ---- render ----
+  var tabs = document.getElementById('tabs');
+  var host = document.getElementById('dayHost');
+
+  PLAN.forEach(function (day, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = day.name.replace(' ', '<br>') + '<span class="tag">' + day.tag + '</span>';
+    b.addEventListener('click', function () { setDay(day.id); });
+    b.id = 'tab-' + day.id;
+    tabs.appendChild(b);
+
+    var sec = document.createElement('section');
+    sec.className = 'day';
+    sec.id = 'day-' + day.id;
+    sec.setAttribute('data-title', day.name + ' (' + day.tag + ')');
+
+    var note = document.createElement('p');
+    note.className = 'day-note';
+    note.textContent = day.note;
+    sec.appendChild(note);
+
+    day.ex.forEach(function (ex) { sec.appendChild(renderEx(day, ex)); });
+    host.appendChild(sec);
+  });
+
+  function renderEx(day, ex) {
+    var card = document.createElement('article');
+    card.className = 'ex';
+    card.id = 'ex-' + ex.id;
+
+    var h = document.createElement('h3');
+    h.textContent = ex.name;
+    card.appendChild(h);
+
+    var chips = document.createElement('div');
+    chips.className = 'chips';
+    var schemeTxt = ex.sets + ' × ' + ex.rmin + '-' + ex.rmax + (ex.per ? ' ' + ex.per : '');
+    chips.innerHTML =
+      '<span class="chip scheme">' + schemeTxt + '</span>' +
+      '<span class="chip">' + ex.rir + '</span>' +
+      '<button type="button" class="chip-btn" data-rest="' + restSecs(ex.rest) + '">⏱ ' + ex.rest + '</button>' +
+      (ex.note ? '<span class="chip">' + ex.note + '</span>' : '') +
+      '<span class="chip up" data-up hidden>' + (ex.hint || '▲ Sube peso') + '</span>';
+    card.appendChild(chips);
+
+    var grid = document.createElement('div');
+    grid.className = 'sets';
+    grid.innerHTML = '<span class="h">Serie</span><span class="h">kg</span><span class="h">reps</span>';
+    for (var i = 0; i < ex.sets; i++) {
+      var n = document.createElement('span');
+      n.className = 'n';
+      n.textContent = (i + 1);
+      grid.appendChild(n);
+      grid.appendChild(mkInput(ex, i, 0));
+      grid.appendChild(mkInput(ex, i, 1));
+    }
+    card.appendChild(grid);
+
+    var last = document.createElement('p');
+    last.className = 'last';
+    last.setAttribute('data-last', '');
+    card.appendChild(last);
+
+    var hist = document.createElement('details');
+    hist.className = 'hist';
+    hist.innerHTML = '<summary>Historial</summary><table><tbody data-hist></tbody></table>';
+    card.appendChild(hist);
+
+    refreshExMeta(ex, card);
+    return card;
+  }
+
+  function mkInput(ex, setIdx, field) { // field 0 = kg, 1 = reps
+    var inp = document.createElement('input');
+    inp.type = 'number';
+    inp.inputMode = 'decimal';
+    inp.min = '0';
+    inp.step = field === 0 ? '0.5' : '1';
+    inp.setAttribute('aria-label', ex.name + ', serie ' + (setIdx + 1) + (field === 0 ? ', kilos' : ', repeticiones'));
+    inp.dataset.ex = ex.id;
+    inp.dataset.set = setIdx;
+    inp.dataset.field = field;
+
+    var d = draft[ex.id];
+    if (d && d[setIdx] && d[setIdx][field] != null && d[setIdx][field] !== 0) {
+      inp.value = d[setIdx][field];
+    }
+    inp.addEventListener('input', function () {
+      var dd = draft[ex.id] || (draft[ex.id] = []);
+      var row = dd[setIdx] || (dd[setIdx] = [null, null]);
+      row[field] = inp.value === '' ? null : parseFloat(inp.value);
+      persist(DRAFT_KEY, draft);
+    });
+    return inp;
+  }
+
+  function refreshExMeta(ex, card) {
+    card = card || document.getElementById('ex-' + ex.id);
+    if (!card) return;
+    var entry = lastEntry(ex.id);
+    var lastEl = card.querySelector('[data-last]');
+    var upEl = card.querySelector('[data-up]');
+    if (entry) {
+      lastEl.innerHTML = 'Última (' + entry.d + '): <b>' + fmtEntry(entry) + '</b>';
+      upEl.hidden = !hitTop(ex, entry);
+    } else {
+      lastEl.textContent = 'Sin sesiones registradas todavía.';
+      upEl.hidden = true;
+    }
+    // ghost placeholders from last session
+    card.querySelectorAll('input').forEach(function (inp) {
+      var si = +inp.dataset.set, f = +inp.dataset.field;
+      inp.placeholder = (entry && entry.s[si] != null) ? entry.s[si][f] : '';
+    });
+    // history table (last 6)
+    var body = card.querySelector('[data-hist]');
+    body.innerHTML = '';
+    (log[ex.id] || []).slice(0, 6).forEach(function (e) {
+      var tr = document.createElement('tr');
+      var td1 = document.createElement('td');
+      td1.textContent = e.d;
+      var td2 = document.createElement('td');
+      td2.textContent = fmtEntry(e);
+      tr.appendChild(td1); tr.appendChild(td2);
+      body.appendChild(tr);
+    });
+  }
+
+  function setDay(id) {
+    activeDay = id;
+    PLAN.forEach(function (day) {
+      document.getElementById('tab-' + day.id).classList.toggle('on', day.id === id);
+      document.getElementById('day-' + day.id).classList.toggle('on', day.id === id);
+    });
+    try { localStorage.setItem('rutina4.day', id); } catch (e) {}
+  }
+
+  // ---- save session ----
+  document.getElementById('saveBtn').addEventListener('click', function () {
+    var day = PLAN.find(function (d) { return d.id === activeDay; });
+    if (!day) return;
+    var today = new Date();
+    var d = String(today.getDate()).padStart(2, '0') + '/' +
+            String(today.getMonth() + 1).padStart(2, '0') + '/' +
+            String(today.getFullYear()).slice(2);
+    var saved = 0;
+    day.ex.forEach(function (ex) {
+      var dd = draft[ex.id];
+      if (!dd) return;
+      var sets = [];
+      for (var i = 0; i < ex.sets; i++) {
+        var row = dd[i];
+        if (row && row[1] > 0) sets.push([row[0] || 0, row[1]]);
+      }
+      if (!sets.length) return;
+      (log[ex.id] = log[ex.id] || []).unshift({ d: d, s: sets });
+      delete draft[ex.id];
+      saved++;
+      refreshExMeta(ex);
+    });
+    if (!saved) { toast('No hay series rellenas en ' + day.name); return; }
+    persist(LOG_KEY, log);
+    persist(DRAFT_KEY, draft);
+    document.querySelectorAll('#day-' + day.id + ' input').forEach(function (i) { i.value = ''; });
+    toast('Sesión guardada: ' + day.name + ' (' + saved + ' ejercicios)');
+  });
+
+  // ---- backup / restore ----
+  document.getElementById('exportBtn').addEventListener('click', function () {
+    var data = JSON.stringify({ v: 1, log: log }, null, 1);
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+    a.download = 'rutina-progreso.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Copia guardada');
+  });
+
+  document.getElementById('importFile').addEventListener('change', function (ev) {
+    var file = ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data || typeof data.log !== 'object') throw new Error('formato');
+        log = data.log;
+        persist(LOG_KEY, log);
+        PLAN.forEach(function (day) { day.ex.forEach(function (ex) { refreshExMeta(ex); }); });
+        toast('Copia restaurada');
+      } catch (e) {
+        toast('Ese archivo no es una copia válida');
+      }
+      ev.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ---- rest timer ----
+  // Del texto del descanso toma el extremo alto ("2-3 min" → 180 s)
+  function restSecs(rest) {
+    var nums = rest.match(/\d+/g).map(Number);
+    var n = Math.max.apply(null, nums);
+    return rest.indexOf('min') > -1 ? n * 60 : n;
+  }
+
+  var pill = document.getElementById('restPill');
+  var rest = { end: 0, iv: null };
+  var actx = null;
+
+  function ensureAudio() {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+    } catch (e) {}
+  }
+
+  function beep() {
+    if (!actx) return;
+    try {
+      var t = actx.currentTime;
+      for (var i = 0; i < 3; i++) {
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine';
+        o.frequency.value = 880;
+        g.gain.setValueAtTime(0.0001, t + i * 0.4);
+        g.gain.exponentialRampToValueAtTime(0.5, t + i * 0.4 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.4 + 0.32);
+        o.connect(g);
+        g.connect(actx.destination);
+        o.start(t + i * 0.4);
+        o.stop(t + i * 0.4 + 0.35);
+      }
+    } catch (e) {}
+  }
+
+  function fmtClock(sec) {
+    return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+  }
+
+  function startRest(sec) {
+    ensureAudio();
+    rest.end = Date.now() + sec * 1000;
+    clearInterval(rest.iv);
+    rest.iv = setInterval(tickRest, 250);
+    pill.classList.add('show');
+    tickRest();
+  }
+
+  function stopRest() {
+    clearInterval(rest.iv);
+    rest.iv = null;
+    pill.classList.remove('show');
+  }
+
+  function tickRest() {
+    var left = Math.ceil((rest.end - Date.now()) / 1000);
+    if (left <= 0) {
+      stopRest();
+      beep();
+      try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 500]); } catch (e) {}
+      toast('¡Descanso terminado — siguiente serie!');
+      return;
+    }
+    pill.textContent = '⏱ ' + fmtClock(left) + '  ·  parar';
+  }
+
+  pill.addEventListener('click', function () {
+    stopRest();
+    toast('Temporizador parado');
+  });
+
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest ? ev.target.closest('.chip-btn') : null;
+    if (btn) startRest(parseInt(btn.dataset.rest, 10));
+  });
+
+  // ---- toast ----
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2600);
+  }
+
+  // ---- init ----
+  var savedDay = null;
+  try { savedDay = localStorage.getItem('rutina4.day'); } catch (e) {}
+  setDay(PLAN.some(function (d) { return d.id === savedDay; }) ? savedDay : PLAN[0].id);
+})();
+</script>
+
+</body>
+</html>
