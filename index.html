@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#eef0f2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131519" media="(prefers-color-scheme: dark)">
-<title>Rutina 4 días — Registro</title>
+<title>Rutina 5 días — Registro</title>
 <style>
   :root {
     --ground: #eef0f2;
@@ -65,7 +65,7 @@
 
   nav.days {
     position: sticky; top: 0; z-index: 10;
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
     padding: 8px 0;
     background: var(--ground);
   }
@@ -141,8 +141,19 @@
   }
   .sets input::placeholder { color: var(--ink-soft); opacity: .55; }
 
+  .note-in {
+    width: 100%; min-width: 0; margin-top: 8px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--field); color: var(--ink);
+    font: 400 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 8px 10px;
+  }
+  .note-in::placeholder { color: var(--ink-soft); opacity: .55; }
+
   .last { margin-top: 10px; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   .last b { color: var(--ink); font-weight: 600; }
+  .last .note-last { display: block; margin-top: 2px; font-style: italic; }
+  details.hist td .n-note { display: block; font-style: italic; }
 
   details.hist { margin-top: 8px; }
   details.hist summary {
@@ -218,8 +229,8 @@
 
 <div class="wrap">
   <header class="app">
-    <h1>Rutina 4 días</h1>
-    <span class="sub">Torso · Pierna</span>
+    <h1>Rutina 5 días</h1>
+    <span class="sub">Torso · Pierna · Cardio</span>
   </header>
 
   <nav class="days" id="tabs" aria-label="Día de entrenamiento"></nav>
@@ -238,6 +249,8 @@
       <li>La próxima vez verás la <b>última sesión</b> como referencia en gris: iguálala o supérala en reps.</li>
       <li>Cuando llegues al <b>tope del rango en todas las series</b>, la app te marcará <b>▲ Sube peso</b>: añade 2,5 kg (torso) o 5 kg (pierna) y vuelve al mínimo del rango.</li>
       <li><b>RIR</b> = reps que te dejas en recámara. RIR 1-2: para cuando te queden 1-2 reps limpias.</li>
+      <li><b>Notas:</b> cada ejercicio tiene un campo de texto (asiento, agarre, molestias…). Se guarda con la sesión y lo verás junto a la última marca y en el historial. Puedes guardar una nota sin series (p. ej. «talón molesto, sin cardio»).</li>
+      <li><b>Cardio (miércoles):</b> normalmente Zona 2 (RPE 5-6: puedes hablar frases enteras). Tras 4+ semanas de base, alterna: una semana Zona 2, otra los intervalos 4×4. Apunta minutos y nivel/km. Ante el primer aviso del talón, solo bici o remo.</li>
       <li><b>Temporizador:</b> toca el chip ⏱ de un ejercicio al acabar la serie y sonará cuando toque la siguiente. Tócalo de nuevo (abajo) para pararlo. Mantén la pantalla encendida: bloqueado, el móvil puede silenciar el aviso.</li>
       <li><b>Descarga</b> cada 6-8 semanas: 1 semana con la mitad de series y −20 % de peso.</li>
       <li>Haz una <b>copia de seguridad</b> de vez en cuando: los datos viven en este navegador.</li>
@@ -277,15 +290,20 @@
         { id: 'gemelo-pie', name: 'Gemelo de pie', sets: 4, rmin: 8, rmax: 10, rest: '90 s', rir: 'RIR 0-1' },
         { id: 'abs-a', name: 'Rueda abdominal o crunch en polea', sets: 3, rmin: 10, rmax: 12, rest: '60 s', rir: 'RIR 1' }
       ] },
+    { id: 'cardio', name: 'Cardio', tag: 'miércoles', note: 'Elige UNA opción. Sin impacto por la fascitis: bici y remo son lo más seguro; elíptica solo si no da molestias. Si notas el talón al levantarte, esa semana solo bici o remo.',
+      ex: [
+        { id: 'cardio-z2', name: 'Zona 2 — bici, remo o elíptica', sets: 1, rmin: 30, rmax: 45, rest: '', rir: 'RPE 5-6', cardio: true, note: 'puedes hablar' },
+        { id: 'cardio-4x4', name: 'Intervalos 4×4 — bici o remo (semanas alternas, con base hecha)', sets: 4, rmin: 4, rmax: 4, rest: '3 min', rir: 'RPE 8-9', cardio: true, note: '3 min suave entre rondas' }
+      ] },
     { id: 'torsoB', name: 'Torso B', tag: 'volumen', note: 'Día de volumen: más reps, cerca del fallo en aislamiento.',
       ex: [
         { id: 'inclinado-manc', name: 'Press inclinado con mancuernas', sets: 4, rmin: 8, rmax: 10, rest: '2 min', rir: 'RIR 1-2' },
         { id: 'jalon', name: 'Jalón al pecho (o dominadas)', sets: 4, rmin: 10, rmax: 12, rest: '2 min', rir: 'RIR 1-2' },
         { id: 'remo-polea', name: 'Remo en polea sentado', sets: 3, rmin: 10, rmax: 12, rest: '2 min', rir: 'RIR 1' },
         { id: 'cruces-polea', name: 'Cruces en polea', sets: 3, rmin: 12, rmax: 15, rest: '60-90 s', rir: 'RIR 0-1' },
-        { id: 'laterales', name: 'Elevaciones laterales', sets: 4, rmin: 12, rmax: 15, rest: '60 s', rir: 'RIR 0-1' },
+        { id: 'laterales', name: 'Elevaciones laterales', sets: 4, rmin: 12, rmax: 15, rest: '60-90 s', rir: 'RIR 0-1' },
         { id: 'curl-inclinado', name: 'Curl inclinado con mancuernas', sets: 3, rmin: 10, rmax: 12, rest: '60-90 s', rir: 'RIR 0-1' },
-        { id: 'triceps-polea', name: 'Extensión de tríceps en polea', sets: 3, rmin: 12, rmax: 15, rest: '60 s', rir: 'RIR 0-1' }
+        { id: 'triceps-polea', name: 'Extensión de tríceps en polea', sets: 3, rmin: 12, rmax: 15, rest: '60-90 s', rir: 'RIR 0-1' }
       ] },
     { id: 'piernaB', name: 'Pierna B', tag: 'volumen', note: 'Día de volumen: más reps, cerca del fallo en aislamiento.',
       ex: [
@@ -293,15 +311,17 @@
         { id: 'hip-thrust', name: 'Hip thrust en máquina', sets: 3, rmin: 8, rmax: 12, rest: '2 min', rir: 'RIR 1-2' },
         { id: 'femoral-sentado-b', name: 'Curl femoral sentado', sets: 3, rmin: 10, rmax: 12, rest: '90 s', rir: 'RIR 1' },
         { id: 'ext-cuadriceps', name: 'Extensión de cuádriceps', sets: 3, rmin: 12, rmax: 15, rest: '60-90 s', rir: 'RIR 0-1' },
-        { id: 'gemelo-sentado', name: 'Gemelo sentado', sets: 4, rmin: 12, rmax: 15, rest: '60 s', rir: 'RIR 0-1' },
+        { id: 'gemelo-sentado', name: 'Gemelo sentado', sets: 4, rmin: 12, rmax: 15, rest: '60-90 s', rir: 'RIR 0-1' },
         { id: 'abs-b', name: 'Elevaciones de piernas colgado', sets: 3, rmin: 10, rmax: 15, rest: '60 s', rir: 'RIR 1' }
       ] }
   ];
 
   var LOG_KEY = 'rutina4.log.v1';
   var DRAFT_KEY = 'rutina4.draft.v1';
-  var log = load(LOG_KEY, {});     // exId -> [{ d: 'dd/mm/aa', s: [[kg, reps], ...] }, ...] newest first
+  var NOTE_KEY = 'rutina4.notes.v1';
+  var log = load(LOG_KEY, {});     // exId -> [{ d: 'dd/mm/aa', s: [[kg, reps], ...], n: 'nota opcional' }, ...] newest first
   var draft = load(DRAFT_KEY, {}); // exId -> [[kg, reps], ...]
+  var notes = load(NOTE_KEY, {});  // exId -> 'nota sin guardar'
   var activeDay = null;
 
   function load(key, fallback) {
@@ -319,14 +339,23 @@
   }
 
   function hitTop(ex, entry) {
-    if (!entry || entry.s.length < ex.sets) return false;
+    if (ex.cardio || !entry || entry.s.length < ex.sets) return false;
     for (var i = 0; i < entry.s.length; i++) {
       if (!(entry.s[i][1] >= ex.rmax)) return false;
     }
     return true;
   }
 
-  function fmtEntry(entry) {
+  function fmtEntry(ex, entry) {
+    if (!entry.s.length) return '—';
+    if (ex && ex.cardio) {
+      var one = function (s) { return s[1] + ' min' + (s[0] ? ' @ ' + s[0] : ''); };
+      var allSame = entry.s.every(function (s) {
+        return s[0] === entry.s[0][0] && s[1] === entry.s[0][1];
+      });
+      if (allSame && entry.s.length > 1) return entry.s.length + ' × ' + one(entry.s[0]);
+      return entry.s.map(one).join(' · ');
+    }
     var kgs = entry.s.map(function (s) { return s[0]; });
     var reps = entry.s.map(function (s) { return s[1]; });
     var sameKg = kgs.every(function (k) { return k === kgs[0]; });
@@ -372,18 +401,25 @@
 
     var chips = document.createElement('div');
     chips.className = 'chips';
-    var schemeTxt = ex.sets + ' × ' + ex.rmin + '-' + ex.rmax + (ex.per ? ' ' + ex.per : '');
+    var schemeTxt = ex.cardio
+      ? (ex.sets > 1 ? ex.sets + ' × ' : '') + ex.rmin + (ex.rmax !== ex.rmin ? '-' + ex.rmax : '') + ' min'
+      : ex.sets + ' × ' + ex.rmin + '-' + ex.rmax + (ex.per ? ' ' + ex.per : '');
+    var restChip = /\d/.test(ex.rest)
+      ? '<button type="button" class="chip-btn" data-rest="' + restSecs(ex.rest) + '">⏱ ' + ex.rest + '</button>'
+      : '';
     chips.innerHTML =
       '<span class="chip scheme">' + schemeTxt + '</span>' +
       '<span class="chip">' + ex.rir + '</span>' +
-      '<button type="button" class="chip-btn" data-rest="' + restSecs(ex.rest) + '">⏱ ' + ex.rest + '</button>' +
+      restChip +
       (ex.note ? '<span class="chip">' + ex.note + '</span>' : '') +
       '<span class="chip up" data-up hidden>' + (ex.hint || '▲ Sube peso') + '</span>';
     card.appendChild(chips);
 
     var grid = document.createElement('div');
     grid.className = 'sets';
-    grid.innerHTML = '<span class="h">Serie</span><span class="h">kg</span><span class="h">reps</span>';
+    grid.innerHTML = ex.cardio
+      ? '<span class="h">Bloque</span><span class="h">nivel/km</span><span class="h">min</span>'
+      : '<span class="h">Serie</span><span class="h">kg</span><span class="h">reps</span>';
     for (var i = 0; i < ex.sets; i++) {
       var n = document.createElement('span');
       n.className = 'n';
@@ -393,6 +429,7 @@
       grid.appendChild(mkInput(ex, i, 1));
     }
     card.appendChild(grid);
+    card.appendChild(mkNote(ex));
 
     var last = document.createElement('p');
     last.className = 'last';
@@ -414,7 +451,8 @@
     inp.inputMode = 'decimal';
     inp.min = '0';
     inp.step = field === 0 ? '0.5' : '1';
-    inp.setAttribute('aria-label', ex.name + ', serie ' + (setIdx + 1) + (field === 0 ? ', kilos' : ', repeticiones'));
+    inp.setAttribute('aria-label', ex.name + ', ' + (ex.cardio ? 'bloque ' : 'serie ') + (setIdx + 1) +
+      (field === 0 ? (ex.cardio ? ', nivel o km' : ', kilos') : (ex.cardio ? ', minutos' : ', repeticiones')));
     inp.dataset.ex = ex.id;
     inp.dataset.set = setIdx;
     inp.dataset.field = field;
@@ -432,6 +470,22 @@
     return inp;
   }
 
+  function mkNote(ex) {
+    var inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'note-in';
+    inp.placeholder = 'Notas (asiento, agarre, molestias…)';
+    inp.setAttribute('aria-label', ex.name + ', notas');
+    inp.maxLength = 200;
+    if (notes[ex.id]) inp.value = notes[ex.id];
+    inp.addEventListener('input', function () {
+      if (inp.value) notes[ex.id] = inp.value;
+      else delete notes[ex.id];
+      persist(NOTE_KEY, notes);
+    });
+    return inp;
+  }
+
   function refreshExMeta(ex, card) {
     card = card || document.getElementById('ex-' + ex.id);
     if (!card) return;
@@ -439,7 +493,13 @@
     var lastEl = card.querySelector('[data-last]');
     var upEl = card.querySelector('[data-up]');
     if (entry) {
-      lastEl.innerHTML = 'Última (' + entry.d + '): <b>' + fmtEntry(entry) + '</b>';
+      lastEl.innerHTML = 'Última (' + entry.d + '): <b>' + fmtEntry(ex, entry) + '</b>';
+      if (entry.n) {
+        var nEl = document.createElement('span');
+        nEl.className = 'note-last';
+        nEl.textContent = '📝 ' + entry.n;
+        lastEl.appendChild(nEl);
+      }
       upEl.hidden = !hitTop(ex, entry);
     } else {
       lastEl.textContent = 'Sin sesiones registradas todavía.';
@@ -458,7 +518,13 @@
       var td1 = document.createElement('td');
       td1.textContent = e.d;
       var td2 = document.createElement('td');
-      td2.textContent = fmtEntry(e);
+      td2.textContent = fmtEntry(ex, e);
+      if (e.n) {
+        var nSpan = document.createElement('span');
+        nSpan.className = 'n-note';
+        nSpan.textContent = '📝 ' + e.n;
+        td2.appendChild(nSpan);
+      }
       tr.appendChild(td1); tr.appendChild(td2);
       body.appendChild(tr);
     });
@@ -484,21 +550,27 @@
     var saved = 0;
     day.ex.forEach(function (ex) {
       var dd = draft[ex.id];
-      if (!dd) return;
       var sets = [];
-      for (var i = 0; i < ex.sets; i++) {
-        var row = dd[i];
-        if (row && row[1] > 0) sets.push([row[0] || 0, row[1]]);
+      if (dd) {
+        for (var i = 0; i < ex.sets; i++) {
+          var row = dd[i];
+          if (row && row[1] > 0) sets.push([row[0] || 0, row[1]]);
+        }
       }
-      if (!sets.length) return;
-      (log[ex.id] = log[ex.id] || []).unshift({ d: d, s: sets });
+      var noteTxt = (notes[ex.id] || '').trim();
+      if (!sets.length && !noteTxt) return;
+      var entry = { d: d, s: sets };
+      if (noteTxt) entry.n = noteTxt;
+      (log[ex.id] = log[ex.id] || []).unshift(entry);
       delete draft[ex.id];
+      delete notes[ex.id];
       saved++;
       refreshExMeta(ex);
     });
-    if (!saved) { toast('No hay series rellenas en ' + day.name); return; }
+    if (!saved) { toast('No hay series ni notas rellenas en ' + day.name); return; }
     persist(LOG_KEY, log);
     persist(DRAFT_KEY, draft);
+    persist(NOTE_KEY, notes);
     document.querySelectorAll('#day-' + day.id + ' input').forEach(function (i) { i.value = ''; });
     toast('Sesión guardada: ' + day.name + ' (' + saved + ' ejercicios)');
   });
@@ -537,8 +609,9 @@
   // ---- rest timer ----
   // Del texto del descanso toma el extremo alto ("2-3 min" → 180 s)
   function restSecs(rest) {
-    var nums = rest.match(/\d+/g).map(Number);
-    var n = Math.max.apply(null, nums);
+    var m = rest.match(/\d+/g);
+    if (!m) return 0;
+    var n = Math.max.apply(null, m.map(Number));
     return rest.indexOf('min') > -1 ? n * 60 : n;
   }
 
