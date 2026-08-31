@@ -88,6 +88,7 @@
   section.day { display: none; }
   section.day.on { display: block; }
   .day-note { font-size: 13px; color: var(--ink-soft); margin: 8px 4px 12px; }
+  .sess-note { margin-top: -6px; font-variant-numeric: tabular-nums; }
 
   .ex {
     background: var(--surface); border: 1px solid var(--line);
@@ -250,8 +251,9 @@
       <li>Cuando llegues al <b>tope del rango en todas las series</b>, la app te marcará <b>▲ Sube peso</b>: añade 2,5 kg (torso) o 5 kg (pierna) y vuelve al mínimo del rango.</li>
       <li><b>RIR</b> = reps que te dejas en recámara. RIR 1-2: para cuando te queden 1-2 reps limpias.</li>
       <li><b>Notas:</b> cada ejercicio tiene un campo de texto (asiento, agarre, molestias…). Se guarda con la sesión y lo verás junto a la última marca y en el historial. Puedes guardar una nota sin series (p. ej. «talón molesto, sin cardio»).</li>
+      <li><b>Duración de la sesión:</b> al apuntar tu primera serie, la app fija el inicio ~7 min antes (calentamiento y aproximaciones); al pulsar <b>Guardar sesión</b> apunta los minutos totales. Si un día se te olvida guardar, el marcador caduca solo a las 4 h — no quedan sesiones colgadas ni duraciones absurdas.</li>
       <li><b>Cardio (miércoles):</b> normalmente Zona 2 (RPE 5-6: puedes hablar frases enteras). Tras 4+ semanas de base, alterna: una semana Zona 2, otra los intervalos 4×4. Apunta minutos y nivel/km. Ante el primer aviso del talón, solo bici o remo.</li>
-      <li><b>Temporizador:</b> toca el chip ⏱ de un ejercicio al acabar la serie y sonará cuando toque la siguiente. Tócalo de nuevo (abajo) para pararlo. Mantén la pantalla encendida: bloqueado, el móvil puede silenciar el aviso.</li>
+      <li><b>Temporizador:</b> toca el chip ⏱ de un ejercicio al acabar la serie y sonará cuando toque la siguiente. Tócalo de nuevo (abajo) para pararlo. Mientras corre, la pantalla se mantiene encendida sola. <b>Acepta las notificaciones</b> cuando la app te lo pida: así también avisa si estás en otra app (Android). Y si el navegador congeló el aviso mientras estabas fuera, suena nada más volver.</li>
       <li><b>Descarga</b> cada 6-8 semanas: 1 semana con la mitad de series y −20 % de peso.</li>
       <li>Haz una <b>copia de seguridad</b> de vez en cuando: los datos viven en este navegador.</li>
     </ul>
@@ -322,6 +324,13 @@
   var log = load(LOG_KEY, {});     // exId -> [{ d: 'dd/mm/aa', s: [[kg, reps], ...], n: 'nota opcional' }, ...] newest first
   var draft = load(DRAFT_KEY, {}); // exId -> [[kg, reps], ...]
   var notes = load(NOTE_KEY, {});  // exId -> 'nota sin guardar'
+
+  var SESS_KEY = 'rutina4.sessions.v1';
+  var SESS_START_KEY = 'rutina4.sess.start.v1';
+  var WARMUP_MS = 7 * 60000;       // calentamiento estimado antes de la primera serie apuntada
+  var SESS_STALE_MS = 4 * 3600000; // un inicio sin guardar caduca solo a las 4 h
+  var sessions = load(SESS_KEY, {});          // dayId -> [{ d, hs, min }, ...] newest first
+  var sessStart = load(SESS_START_KEY, null); // { t: epoch } inicio de la sesión en curso
   var activeDay = null;
 
   function load(key, fallback) {
@@ -385,6 +394,12 @@
     note.className = 'day-note';
     note.textContent = day.note;
     sec.appendChild(note);
+
+    var sess = document.createElement('p');
+    sess.className = 'day-note sess-note';
+    sess.setAttribute('data-sess', day.id);
+    sess.hidden = true;
+    sec.appendChild(sess);
 
     day.ex.forEach(function (ex) { sec.appendChild(renderEx(day, ex)); });
     host.appendChild(sec);
@@ -466,6 +481,7 @@
       var row = dd[setIdx] || (dd[setIdx] = [null, null]);
       row[field] = inp.value === '' ? null : parseFloat(inp.value);
       persist(DRAFT_KEY, draft);
+      if (inp.value !== '') touchSessionStart();
     });
     return inp;
   }
@@ -530,6 +546,38 @@
     });
   }
 
+  // ---- duración de sesión ----
+  function fmtHM(t) {
+    var dt = new Date(t);
+    return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
+  }
+
+  // Al apuntar la primera serie: inicio = ahora − 7 min (calentamiento y aproximaciones).
+  // Un marcador de hace más de 4 h es una sesión que no se guardó: se reemplaza.
+  function touchSessionStart() {
+    var now = Date.now();
+    if (!sessStart || (now - sessStart.t) > SESS_STALE_MS) {
+      sessStart = { t: now - WARMUP_MS };
+      persist(SESS_START_KEY, sessStart);
+      refreshSessNotes();
+    }
+  }
+
+  function refreshSessNotes() {
+    PLAN.forEach(function (day) {
+      var el = document.querySelector('[data-sess="' + day.id + '"]');
+      if (!el) return;
+      var parts = [];
+      if (sessStart && (Date.now() - sessStart.t) <= SESS_STALE_MS) {
+        parts.push('⏱ Sesión en curso, empezada ~' + fmtHM(sessStart.t));
+      }
+      var lastS = (sessions[day.id] || [])[0];
+      if (lastS) parts.push('Última ' + day.name + ': ' + lastS.min + ' min (' + lastS.d + ', ' + lastS.hs + ')');
+      el.textContent = parts.join(' · ');
+      el.hidden = !parts.length;
+    });
+  }
+
   function setDay(id) {
     activeDay = id;
     PLAN.forEach(function (day) {
@@ -571,13 +619,29 @@
     persist(LOG_KEY, log);
     persist(DRAFT_KEY, draft);
     persist(NOTE_KEY, notes);
+    // Duración: solo si el inicio es de esta misma sesión (no caducado). Guardar
+    // siempre limpia el marcador: imposible dejar sesiones colgadas.
+    var durTxt = '';
+    if (sessStart) {
+      var elapsed = Date.now() - sessStart.t;
+      if (elapsed > 0 && elapsed <= SESS_STALE_MS) {
+        var mins = Math.round(elapsed / 60000);
+        (sessions[day.id] = sessions[day.id] || []).unshift({ d: d, hs: fmtHM(sessStart.t), min: mins });
+        sessions[day.id] = sessions[day.id].slice(0, 20);
+        persist(SESS_KEY, sessions);
+        durTxt = ' · ' + mins + ' min';
+      }
+      sessStart = null;
+      try { localStorage.removeItem(SESS_START_KEY); } catch (e) {}
+    }
+    refreshSessNotes();
     document.querySelectorAll('#day-' + day.id + ' input').forEach(function (i) { i.value = ''; });
-    toast('Sesión guardada: ' + day.name + ' (' + saved + ' ejercicios)');
+    toast('Sesión guardada: ' + day.name + ' (' + saved + ' ejercicios' + durTxt + ')');
   });
 
   // ---- backup / restore ----
   document.getElementById('exportBtn').addEventListener('click', function () {
-    var data = JSON.stringify({ v: 1, log: log }, null, 1);
+    var data = JSON.stringify({ v: 1, log: log, sessions: sessions }, null, 1);
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
     a.download = 'rutina-progreso.json';
@@ -596,7 +660,12 @@
         if (!data || typeof data.log !== 'object') throw new Error('formato');
         log = data.log;
         persist(LOG_KEY, log);
+        if (data.sessions && typeof data.sessions === 'object') {
+          sessions = data.sessions;
+          persist(SESS_KEY, sessions);
+        }
         PLAN.forEach(function (day) { day.ex.forEach(function (ex) { refreshExMeta(ex); }); });
+        refreshSessNotes();
         toast('Copia restaurada');
       } catch (e) {
         toast('Ese archivo no es una copia válida');
@@ -616,8 +685,36 @@
   }
 
   var pill = document.getElementById('restPill');
-  var rest = { end: 0, iv: null };
+  var rest = { end: 0, iv: null, active: false };
   var actx = null;
+
+  // Tick de reserva en un Web Worker: los temporizadores del hilo principal se
+  // recortan en segundo plano (hasta 1/min); los de un worker no.
+  var wkr = null;
+  try {
+    var wBlob = new Blob(
+      ['var iv=null;onmessage=function(e){clearInterval(iv);iv=null;if(e.data==="start")iv=setInterval(function(){postMessage(0);},250);};'],
+      { type: 'text/javascript' }
+    );
+    wkr = new Worker(URL.createObjectURL(wBlob));
+    wkr.onmessage = function () { tickRest(); };
+  } catch (e) {}
+
+  // Mientras corre el temporizador, retener un Web Lock: Chrome no congela
+  // pestañas con un lock activo.
+  var lockRelease = null;
+  function grabTabLock() {
+    try {
+      if (navigator.locks && !lockRelease) {
+        navigator.locks.request('rest-timer', function () {
+          return new Promise(function (resolve) { lockRelease = resolve; });
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function dropTabLock() {
+    try { if (lockRelease) { lockRelease(); lockRelease = null; } } catch (e) {}
+  }
 
   function ensureAudio() {
     try {
@@ -629,7 +726,15 @@
   function beep() {
     if (!actx) return;
     try {
-      var t = actx.currentTime;
+      // Si el navegador suspendió el audio en segundo plano, reactivarlo antes de sonar
+      if (actx.state === 'suspended') actx.resume().then(function () { tones(); }).catch(function () {});
+      else tones();
+    } catch (e) {}
+  }
+
+  function tones(offsetSec, track) {
+    try {
+      var t = actx.currentTime + (offsetSec || 0);
       for (var i = 0; i < 3; i++) {
         var o = actx.createOscillator(), g = actx.createGain();
         o.type = 'sine';
@@ -641,40 +746,118 @@
         g.connect(actx.destination);
         o.start(t + i * 0.4);
         o.stop(t + i * 0.4 + 0.35);
+        if (track) sched.push({ o: o, g: g });
       }
     } catch (e) {}
+  }
+
+  // Pitido pre-programado en el reloj de audio: el hilo de audio lo reproduce a
+  // su hora aunque el navegador congele el JavaScript de la página.
+  var sched = [];
+  function scheduleBeep(sec) {
+    if (!actx) return;
+    try {
+      if (actx.state === 'suspended') actx.resume().then(function () { tones(sec, true); }).catch(function () {});
+      else tones(sec, true);
+    } catch (e) {}
+  }
+  function cancelScheduled() {
+    sched.forEach(function (s) {
+      try { s.o.stop(0); } catch (e) {}
+      try { s.g.disconnect(); } catch (e) {}
+    });
+    sched = [];
   }
 
   function fmtClock(sec) {
     return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
   }
 
+  // Mantiene la pantalla encendida mientras corre el temporizador
+  var wakeLock = null;
+  function grabWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').then(function (wl) { wakeLock = wl; }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function dropWakeLock() {
+    try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {}
+  }
+
+  // Notificación del sistema: avisa aunque estés en otra app (Android)
+  function askNotifPermission() {
+    try {
+      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    } catch (e) {}
+  }
+  function notify() {
+    try {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      var title = '⏱ ¡Descanso terminado!';
+      var opts = { body: 'Vuelve a la app: toca la siguiente serie.', tag: 'rest-timer', vibrate: [250, 120, 250, 120, 500] };
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        navigator.serviceWorker.getRegistration().then(function (reg) {
+          if (reg) reg.showNotification(title, opts);
+          else new Notification(title, opts);
+        }).catch(function () {});
+      } else {
+        new Notification(title, opts);
+      }
+    } catch (e) {}
+  }
+
   function startRest(sec) {
+    cancelScheduled();
     ensureAudio();
+    askNotifPermission();
+    grabWakeLock();
+    grabTabLock();
     rest.end = Date.now() + sec * 1000;
+    rest.active = true;
     clearInterval(rest.iv);
     rest.iv = setInterval(tickRest, 250);
+    if (wkr) { try { wkr.postMessage('start'); } catch (e) {} }
+    scheduleBeep(sec);
     pill.classList.add('show');
     tickRest();
   }
 
-  function stopRest() {
+  // natural = el tiempo venció solo: se deja sonar el pitido pre-programado
+  function stopRest(natural) {
     clearInterval(rest.iv);
     rest.iv = null;
+    rest.active = false;
+    if (wkr) { try { wkr.postMessage('stop'); } catch (e) {} }
+    if (!natural) cancelScheduled();
     pill.classList.remove('show');
+    dropWakeLock();
+    dropTabLock();
   }
 
   function tickRest() {
+    if (!rest.active) return;
     var left = Math.ceil((rest.end - Date.now()) / 1000);
     if (left <= 0) {
-      stopRest();
-      beep();
+      var preScheduled = sched.length > 0 && actx && actx.state === 'running';
+      stopRest(true);
+      if (!preScheduled) beep();
       try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 500]); } catch (e) {}
+      if (document.hidden) notify();
       toast('¡Descanso terminado — siguiente serie!');
       return;
     }
     pill.textContent = '⏱ ' + fmtClock(left) + '  ·  parar';
   }
+
+  // Al volver a la app: reactivar audio y pantalla, y si el tiempo venció fuera, avisar ya
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible' || !rest.active) return;
+    ensureAudio();
+    grabWakeLock();
+    tickRest();
+  });
 
   pill.addEventListener('click', function () {
     stopRest();
@@ -697,9 +880,15 @@
   }
 
   // ---- init ----
+  // Service worker mínimo (solo notificaciones); si falta sw.js o no hay https, se ignora sin romper nada
+  try {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  } catch (e) {}
+
   var savedDay = null;
   try { savedDay = localStorage.getItem('rutina4.day'); } catch (e) {}
   setDay(PLAN.some(function (d) { return d.id === savedDay; }) ? savedDay : PLAN[0].id);
+  refreshSessNotes();
 })();
 </script>
 
