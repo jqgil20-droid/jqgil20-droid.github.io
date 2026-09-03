@@ -122,6 +122,13 @@
     white-space: nowrap;
   }
   #restPill.show { display: block; }
+  #restPill.work { background: var(--up); }
+
+  .today {
+    font-size: 13px; font-weight: 600;
+    color: var(--accent); background: var(--accent-soft);
+    border-radius: var(--radius); padding: 10px 12px; margin: 8px 0 4px;
+  }
 
   .sets { display: grid; grid-template-columns: 44px 1fr 1fr; gap: 6px; align-items: center; }
   .sets .h {
@@ -252,7 +259,7 @@
       <li><b>RIR</b> = reps que te dejas en recámara. RIR 1-2: para cuando te queden 1-2 reps limpias.</li>
       <li><b>Notas:</b> cada ejercicio tiene un campo de texto (asiento, agarre, molestias…). Se guarda con la sesión y lo verás junto a la última marca y en el historial. Puedes guardar una nota sin series (p. ej. «talón molesto, sin cardio»).</li>
       <li><b>Duración de la sesión:</b> al apuntar tu primera serie, la app fija el inicio ~7 min antes (calentamiento y aproximaciones); al pulsar <b>Guardar sesión</b> apunta los minutos totales. Si un día se te olvida guardar, el marcador caduca solo a las 4 h — no quedan sesiones colgadas ni duraciones absurdas.</li>
-      <li><b>Cardio (miércoles):</b> normalmente Zona 2 (RPE 5-6: puedes hablar frases enteras). Tras 4+ semanas de base, alterna: una semana Zona 2, otra los intervalos 4×4. Apunta minutos y nivel/km. Ante el primer aviso del talón, solo bici o remo.</li>
+      <li><b>Cardio (miércoles, cinta):</b> la línea <b>«Hoy toca»</b> de ese día calcula sola, según tu historial, qué sesión corresponde: semanas 1-4 la progresión correr/caminar (sube el tiempo de carrera, no la velocidad) y después el ciclo 4×4 (3 semanas, RPE 8-9: solo palabras sueltas, corriendo o en cuesta rápida) + Zona 2 caminando (la 4ª, descarga). El botón <b>▶</b> guía la sesión entera con pitidos en cada cambio: globo verde = correr/fuerte, azul = caminar; para pararlo hay que tocarlo dos veces. Apunta minutos y km (o velocidad/cuesta): si repites el mismo nivel máximo dos 4×4 seguidos, aparece <b>▲ Sube ritmo</b>. Si el talón duele por la mañana, esa semana sin correr: cuesta o bici.</li>
       <li><b>Temporizador:</b> toca el chip ⏱ de un ejercicio al acabar la serie y sonará cuando toque la siguiente. Tócalo de nuevo (abajo) para pararlo. Mientras corre, la pantalla se mantiene encendida sola. <b>Acepta las notificaciones</b> cuando la app te lo pida: así también avisa si estás en otra app (Android). Y si el navegador congeló el aviso mientras estabas fuera, suena nada más volver.</li>
       <li><b>Descarga</b> cada 6-8 semanas: 1 semana con la mitad de series y −20 % de peso.</li>
       <li>Haz una <b>copia de seguridad</b> de vez en cuando: los datos viven en este navegador.</li>
@@ -292,10 +299,11 @@
         { id: 'gemelo-pie', name: 'Gemelo de pie', sets: 4, rmin: 8, rmax: 10, rest: '90 s', rir: 'RIR 0-1' },
         { id: 'abs-a', name: 'Rueda abdominal o crunch en polea', sets: 3, rmin: 10, rmax: 12, rest: '60 s', rir: 'RIR 1' }
       ] },
-    { id: 'cardio', name: 'Cardio', tag: 'miércoles', note: 'Elige UNA opción. Sin impacto por la fascitis: bici y remo son lo más seguro; elíptica solo si no da molestias. Si notas el talón al levantarte, esa semana solo bici o remo.',
+    { id: 'cardio', name: 'Cardio', tag: 'miércoles', note: 'Cinta. Fase 1 (semanas 1-4): correr/caminar progresivo. Después: 4×4 como sesión principal y Zona 2 cada 4ª semana. Si el talón doliese al levantarte, esa semana solo caminar en cuesta o bici, sin correr.',
       ex: [
-        { id: 'cardio-z2', name: 'Zona 2 — bici, remo o elíptica', sets: 1, rmin: 30, rmax: 45, rest: '', rir: 'RPE 5-6', cardio: true, note: 'puedes hablar' },
-        { id: 'cardio-4x4', name: 'Intervalos 4×4 — bici o remo (semanas alternas, con base hecha)', sets: 4, rmin: 4, rmax: 4, rest: '3 min', rir: 'RPE 8-9', cardio: true, note: '3 min suave entre rondas' }
+        { id: 'cinta-progresion', name: 'Correr/caminar — progresión (semanas 1-4)', sets: 1, rmin: 30, rmax: 40, rest: '', rir: 'RPE 5-6', cardio: true, interval: true, ivLabel: '▶ Guiar sesión', note: 'sem 1: 6×[2 correr + 2 caminar] · sem 2: 5×[4+2] · sem 3: 4×[6+2] · sem 4: 2×[12+3]' },
+        { id: 'cinta-4x4', name: 'Intervalos 4×4 — correr o cuesta rápida (8-12 %)', sets: 4, rmin: 4, rmax: 4, rest: '3 min', rir: 'RPE 8-9', cardio: true, interval: true, ivLabel: '▶ Rondas (tras calentar 10 min)', pace: true, hint: '▲ Sube ritmo (+0,5 km/h o +1 cuesta)', note: '3 min caminando entre rondas' },
+        { id: 'cinta-z2', name: 'Zona 2 — caminata rápida con cuesta (cada 4ª semana)', sets: 1, rmin: 40, rmax: 45, rest: '', rir: 'RPE 5-6', cardio: true, note: 'también si el talón o las piernas avisan' }
       ] },
     { id: 'torsoB', name: 'Torso B', tag: 'volumen', note: 'Día de volumen: más reps, cerca del fallo en aislamiento.',
       ex: [
@@ -348,11 +356,23 @@
   }
 
   function hitTop(ex, entry) {
-    if (ex.cardio || !entry || entry.s.length < ex.sets) return false;
+    if (ex.cardio) return !!ex.pace && paceStuck(ex);
+    if (!entry || entry.s.length < ex.sets) return false;
     for (var i = 0; i < entry.s.length; i++) {
       if (!(entry.s[i][1] >= ex.rmax)) return false;
     }
     return true;
+  }
+
+  // 4×4: dos sesiones seguidas sin superar el nivel máximo → toca subir ritmo
+  function paceStuck(ex) {
+    var l = log[ex.id] || [];
+    if (l.length < 2 || !l[0].s.length || !l[1].s.length) return false;
+    var top = function (e) {
+      return Math.max.apply(null, e.s.map(function (s) { return s[0] || 0; }));
+    };
+    var a = top(l[0]);
+    return a > 0 && a <= top(l[1]);
   }
 
   function fmtEntry(ex, entry) {
@@ -390,6 +410,13 @@
     sec.id = 'day-' + day.id;
     sec.setAttribute('data-title', day.name + ' (' + day.tag + ')');
 
+    if (day.id === 'cardio') {
+      var next = document.createElement('p');
+      next.className = 'today';
+      next.setAttribute('data-next', 'cardio');
+      sec.appendChild(next);
+    }
+
     var note = document.createElement('p');
     note.className = 'day-note';
     note.textContent = day.note;
@@ -422,9 +449,13 @@
     var restChip = /\d/.test(ex.rest)
       ? '<button type="button" class="chip-btn" data-rest="' + restSecs(ex.rest) + '">⏱ ' + ex.rest + '</button>'
       : '';
+    var ivChip = ex.interval
+      ? '<button type="button" class="chip-btn" data-interval="' + ex.id + '">' + ex.ivLabel + '</button>'
+      : '';
     chips.innerHTML =
       '<span class="chip scheme">' + schemeTxt + '</span>' +
       '<span class="chip">' + ex.rir + '</span>' +
+      ivChip +
       restChip +
       (ex.note ? '<span class="chip">' + ex.note + '</span>' : '') +
       '<span class="chip up" data-up hidden>' + (ex.hint || '▲ Sube peso') + '</span>';
@@ -578,6 +609,54 @@
     });
   }
 
+  // ---- plan de cardio: qué toca este miércoles ----
+  // Fase 1 = 4 sesiones de progresión correr/caminar; después, ciclo de 4
+  // semanas: 3 de intervalos 4×4 y la 4ª de Zona 2 caminando (descarga).
+  var FASE1 = [
+    { blocks: 6, run: 2, walk: 2 },
+    { blocks: 5, run: 4, walk: 2 },
+    { blocks: 4, run: 6, walk: 2 },
+    { blocks: 2, run: 12, walk: 3 }
+  ];
+
+  function uniqueDates(exIds) {
+    var seen = {}, n = 0;
+    exIds.forEach(function (id) {
+      (log[id] || []).forEach(function (e) {
+        if (!seen[e.d]) { seen[e.d] = 1; n++; }
+      });
+    });
+    return n;
+  }
+
+  function cardioStatus() {
+    var done = uniqueDates(['cinta-progresion']);
+    if (done < FASE1.length) {
+      var wk = FASE1[done];
+      return { fase: 1, week: done + 1, wk: wk,
+        txt: 'Hoy toca · Fase 1, semana ' + (done + 1) + ' de 4: ' +
+             wk.blocks + ' × [' + wk.run + ' min correr + ' + wk.walk + ' caminar]' };
+    }
+    var m = uniqueDates(['cinta-4x4', 'cinta-z2']) % 4;
+    return m === 3
+      ? { fase: 2, txt: 'Hoy toca · Zona 2: 40-45 min caminata rápida (semana 4 de 4, descarga)' }
+      : { fase: 2, txt: 'Hoy toca · Intervalos 4×4 (semana ' + (m + 1) + ' de 4 del ciclo)' };
+  }
+
+  function refreshCardioNext() {
+    var el = document.querySelector('[data-next="cardio"]');
+    if (!el) return;
+    var st = cardioStatus();
+    el.textContent = '📋 ' + st.txt;
+    var btn = document.querySelector('[data-interval="cinta-progresion"]');
+    if (btn) {
+      btn.hidden = st.fase !== 1;
+      if (st.fase === 1) {
+        btn.textContent = '▶ Guiar sem ' + st.week + ': ' + st.wk.blocks + '×[' + st.wk.run + '+' + st.wk.walk + ']';
+      }
+    }
+  }
+
   function setDay(id) {
     activeDay = id;
     PLAN.forEach(function (day) {
@@ -635,6 +714,7 @@
       try { localStorage.removeItem(SESS_START_KEY); } catch (e) {}
     }
     refreshSessNotes();
+    refreshCardioNext();
     document.querySelectorAll('#day-' + day.id + ' input').forEach(function (i) { i.value = ''; });
     toast('Sesión guardada: ' + day.name + ' (' + saved + ' ejercicios' + durTxt + ')');
   });
@@ -666,6 +746,7 @@
         }
         PLAN.forEach(function (day) { day.ex.forEach(function (ex) { refreshExMeta(ex); }); });
         refreshSessNotes();
+        refreshCardioNext();
         toast('Copia restaurada');
       } catch (e) {
         toast('Ese archivo no es una copia válida');
@@ -735,6 +816,7 @@
   function tones(offsetSec, track) {
     try {
       var t = actx.currentTime + (offsetSec || 0);
+      if (track) schedAt = t;
       for (var i = 0; i < 3; i++) {
         var o = actx.createOscillator(), g = actx.createGain();
         o.type = 'sine';
@@ -754,6 +836,7 @@
   // Pitido pre-programado en el reloj de audio: el hilo de audio lo reproduce a
   // su hora aunque el navegador congele el JavaScript de la página.
   var sched = [];
+  var schedAt = 0; // hora del pitido en el reloj de audio, para detectar si quedó atrasado
   function scheduleBeep(sec) {
     if (!actx) return;
     try {
@@ -792,11 +875,11 @@
       if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
     } catch (e) {}
   }
-  function notify() {
+  function notify(msg, body) {
     try {
       if (!('Notification' in window) || Notification.permission !== 'granted') return;
-      var title = '⏱ ¡Descanso terminado!';
-      var opts = { body: 'Vuelve a la app: toca la siguiente serie.', tag: 'rest-timer', vibrate: [250, 120, 250, 120, 500] };
+      var title = '⏱ ' + (msg || '¡Descanso terminado!');
+      var opts = { body: body || 'Vuelve a la app: toca la siguiente serie.', tag: 'rest-timer', vibrate: [250, 120, 250, 120, 500] };
       if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
         navigator.serviceWorker.getRegistration().then(function (reg) {
           if (reg) reg.showNotification(title, opts);
@@ -808,12 +891,15 @@
     } catch (e) {}
   }
 
-  function startRest(sec) {
+  function startRest(sec, q) {
     cancelScheduled();
     ensureAudio();
     askNotifPermission();
     grabWakeLock();
     grabTabLock();
+    rest.q = q || null;
+    rest.qi = 0;
+    rest.seg = q ? q[0] : null;
     rest.end = Date.now() + sec * 1000;
     rest.active = true;
     clearInterval(rest.iv);
@@ -824,31 +910,109 @@
     tickRest();
   }
 
-  // natural = el tiempo venció solo: se deja sonar el pitido pre-programado
-  function stopRest(natural) {
+  // keepBeep = dejar sonar el pitido pre-programado (venció a su hora en el reloj de audio)
+  function stopRest(keepBeep) {
     clearInterval(rest.iv);
     rest.iv = null;
     rest.active = false;
+    rest.q = null;
+    rest.qi = 0;
+    rest.seg = null;
     if (wkr) { try { wkr.postMessage('stop'); } catch (e) {} }
-    if (!natural) cancelScheduled();
+    if (!keepBeep) cancelScheduled();
     pill.classList.remove('show');
+    pill.classList.remove('work');
     dropWakeLock();
     dropTabLock();
+  }
+
+  // Encadena el siguiente bloque de la secuencia de intervalos sobre la hora
+  // prevista del anterior (sin deriva). Si la app estuvo congelada varios
+  // bloques, los salta hasta llegar al que corresponde ahora.
+  function advanceSeg() {
+    while (rest.q && rest.qi < rest.q.length - 1) {
+      rest.qi++;
+      rest.seg = rest.q[rest.qi];
+      rest.end += rest.seg.sec * 1000;
+      if (rest.end > Date.now()) {
+        scheduleBeep((rest.end - Date.now()) / 1000);
+        return true;
+      }
+    }
+    return false;
   }
 
   function tickRest() {
     if (!rest.active) return;
     var left = Math.ceil((rest.end - Date.now()) / 1000);
     if (left <= 0) {
-      var preScheduled = sched.length > 0 && actx && actx.state === 'running';
-      stopRest(true);
-      if (!preScheduled) beep();
+      // El reloj de audio se pausa si Android suspende la app: un pitido programado
+      // ahí sonaría con el retraso acumulado. Solo vale si el reloj llegó a su hora;
+      // si no, se cancela y se pita ya.
+      var preScheduled = sched.length > 0 && actx && actx.state === 'running' &&
+                         actx.currentTime >= schedAt - 0.5;
+      if (preScheduled) sched = [];
+      else { cancelScheduled(); beep(); }
       try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 500]); } catch (e) {}
-      if (document.hidden) notify();
-      toast('¡Descanso terminado — siguiente serie!');
+      var msg = rest.seg ? rest.seg.msg : '¡Descanso terminado — siguiente serie!';
+      if (document.hidden) notify(msg, rest.seg ? 'Intervalos de cardio en marcha.' : null);
+      toast(msg);
+      if (rest.seg && advanceSeg()) { tickRest(); return; }
+      stopRest(true);
       return;
     }
-    pill.textContent = '⏱ ' + fmtClock(left) + '  ·  parar';
+    var txt = fmtClock(left) + '  ·  parar';
+    pill.textContent = rest.seg ? rest.seg.lab + '  ' + txt : '⏱ ' + txt;
+    pill.classList.toggle('work', !!(rest.seg && rest.seg.work));
+  }
+
+  // ---- intervalos de cardio guiados ----
+  function buildSeq(ex) {
+    var seq = [];
+    if (ex.id === 'cinta-progresion') {
+      var st = cardioStatus();
+      var wk = st.wk || FASE1[FASE1.length - 1];
+      seq.push({ sec: 300, work: false, lab: '🚶 calienta', msg: '¡A correr — bloque 1 de ' + wk.blocks + '!' });
+      for (var i = 1; i <= wk.blocks; i++) {
+        seq.push({ sec: wk.run * 60, work: true, lab: '🏃 ' + i + '/' + wk.blocks,
+          msg: i < wk.blocks ? 'Camina ' + wk.walk + ' min suave' : '¡Sesión hecha! Camina 5 min para enfriar' });
+        if (i < wk.blocks) {
+          seq.push({ sec: wk.walk * 60, work: false, lab: '🚶 ' + i + '/' + wk.blocks,
+            msg: '¡A correr — bloque ' + (i + 1) + ' de ' + wk.blocks + '!' });
+        }
+      }
+    } else {
+      for (var r = 1; r <= ex.sets; r++) {
+        seq.push({ sec: ex.rmin * 60, work: true, lab: '💪 ' + r + '/' + ex.sets,
+          msg: r < ex.sets ? 'Suave: ' + ex.rest + ' caminando' : '¡4×4 completado! Enfría 5 min caminando' });
+        if (r < ex.sets) {
+          seq.push({ sec: restSecs(ex.rest), work: false, lab: '🚶 ' + r + '/' + ex.sets,
+            msg: '¡Ronda ' + (r + 1) + ' de ' + ex.sets + ' — fuerte!' });
+        }
+      }
+    }
+    return seq;
+  }
+
+  function startIntervals(ex) {
+    var q = buildSeq(ex);
+    // marca el inicio real de la sesión (sin restar aproximaciones: empieza ya)
+    if (!sessStart || (Date.now() - sessStart.t) > SESS_STALE_MS) {
+      sessStart = { t: Date.now() };
+      persist(SESS_START_KEY, sessStart);
+      refreshSessNotes();
+    }
+    startRest(q[0].sec, q);
+    toast('Intervalos en marcha — ' + q[0].lab + ' ' + fmtClock(q[0].sec));
+  }
+
+  function findEx(id) {
+    for (var i = 0; i < PLAN.length; i++) {
+      for (var j = 0; j < PLAN[i].ex.length; j++) {
+        if (PLAN[i].ex[j].id === id) return PLAN[i].ex[j];
+      }
+    }
+    return null;
   }
 
   // Al volver a la app: reactivar audio y pantalla, y si el tiempo venció fuera, avisar ya
@@ -859,14 +1023,28 @@
     tickRest();
   });
 
+  // En modo intervalos, parar pide un segundo toque: un roce accidental en la
+  // cinta no debe tirar la sesión entera.
+  var stopArm = 0;
   pill.addEventListener('click', function () {
+    if (rest.q && Date.now() - stopArm > 3000) {
+      stopArm = Date.now();
+      toast('¿Parar los intervalos? Toca otra vez para confirmar');
+      return;
+    }
     stopRest();
     toast('Temporizador parado');
   });
 
   document.addEventListener('click', function (ev) {
     var btn = ev.target.closest ? ev.target.closest('.chip-btn') : null;
-    if (btn) startRest(parseInt(btn.dataset.rest, 10));
+    if (!btn) return;
+    if (btn.dataset.interval) {
+      var ex = findEx(btn.dataset.interval);
+      if (ex) startIntervals(ex);
+    } else if (btn.dataset.rest) {
+      startRest(parseInt(btn.dataset.rest, 10));
+    }
   });
 
   // ---- toast ----
@@ -889,6 +1067,7 @@
   try { savedDay = localStorage.getItem('rutina4.day'); } catch (e) {}
   setDay(PLAN.some(function (d) { return d.id === savedDay; }) ? savedDay : PLAN[0].id);
   refreshSessNotes();
+  refreshCardioNext();
 })();
 </script>
 
