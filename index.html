@@ -229,6 +229,21 @@
   details.guide ul { margin: 10px 0 4px; padding-left: 20px; color: var(--ink-soft); }
   details.guide li { margin-bottom: 6px; }
   details.guide b { color: var(--ink); }
+  details.sync .sync-state { font-weight: 500; color: var(--ink-soft); font-size: 12px; margin-left: 6px; }
+  details.sync .sync-state.ok { color: var(--up); }
+  details.sync .sync-state.bad { color: #c0392b; }
+  details.sync .sync-help { margin: 10px 0 8px; font-size: 13px; color: var(--ink-soft); }
+  details.sync .sync-field { display: block; font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+  details.sync .sync-field input {
+    display: block; width: 100%; min-width: 0; margin-top: 4px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--field); color: var(--ink);
+    font: 400 14px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    padding: 8px 10px;
+  }
+  details.sync .sync-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  details.sync .sync-btns .btn { font-size: 12px; padding: 9px 12px; }
+  details.sync .sync-log { margin: 10px 0 0; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: pre-line; }
 
   #toast {
     position: fixed; left: 50%; bottom: 142px; transform: translateX(-50%) translateY(8px);
@@ -276,10 +291,28 @@
     <input type="file" id="targetsFile" accept="application/json">
   </div>
 
+  <details class="guide sync" id="syncBox">
+    <summary>Sincronización con GitHub <span class="sync-state" id="syncState"></span></summary>
+    <p class="sync-help">Al guardar una sesión, el progreso se sube a tu repositorio <b>privado</b> y, al abrir la app, se bajan los pesos nuevos de la semana. El token se guarda solo en este navegador.</p>
+    <label class="sync-field">Repositorio (usuario/nombre)
+      <input type="text" id="syncRepo" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="jqgil20-droid/rutina-datos">
+    </label>
+    <label class="sync-field">Token de grano fino (solo ese repo, Contents: lectura y escritura)
+      <input type="password" id="syncToken" autocomplete="off" placeholder="github_pat_…">
+    </label>
+    <div class="sync-btns">
+      <button class="btn" type="button" id="syncSaveBtn">Guardar ajustes</button>
+      <button class="btn" type="button" id="syncUpBtn">Subir progreso ahora</button>
+      <button class="btn" type="button" id="syncDownBtn">Bajar pesos</button>
+      <button class="btn" type="button" id="syncClearBtn">Borrar token</button>
+    </div>
+    <p class="sync-log" id="syncLog"></p>
+  </details>
+
   <details class="guide">
     <summary>Cómo progresar (doble progresión)</summary>
     <ul>
-      <li><b>Pesos de la semana (🎯):</b> cada ejercicio lleva el peso que toca esta semana, marcado por el entrenador a partir de tu progreso. Aparece como chip y como valor gris en kg. Se actualizan al actualizar la app o con <b>Importar pesos</b> (archivo JSON). Cada semana: <b>Copia de seguridad</b> → se la mandas → vuelven los pesos nuevos.</li>
+      <li><b>Pesos de la semana (🎯):</b> cada ejercicio lleva el peso que toca esta semana, marcado por el entrenador a partir de tu progreso. Aparece como chip y como valor gris en kg. Con la <b>sincronización con GitHub</b> configurada, el progreso se sube solo al guardar y los pesos nuevos se bajan solos al abrir la app. Sin ella, vale <b>Copia de seguridad</b> → se la mandas → <b>Importar pesos</b>.</li>
       <li><b>Rellena kg, reps y RIR</b> de cada serie y toca el <b>✓</b> de esa fila: la serie queda en verde y arranca sola el descanso del ejercicio. En la <b>última serie</b> el ✓ no lanza descanso. Si dejas kg o reps vacíos, el ✓ copia el valor gris (objetivo o última sesión); el RIR no se rellena solo. Tócalo otra vez para desmarcar. Al acabar el día pulsa <b>Guardar sesión</b>.</li>
       <li><b>RIR</b> = reps que te habrías podido hacer de más. Apunta el que creas de verdad, aunque te equivoques: sirve para ajustar los pesos de la semana siguiente. RIR 0 = no salía otra. Regla: si pierdes más de 2 reps entre la 1ª y la última serie al mismo peso, la 1ª fue al fallo.</li>
       <li><b>Mismo peso en todas las series</b> (casi todos los ejercicios): cuando llegues al <b>tope del rango en todas</b>, la app marca <b>▲ Sube peso</b>: +2,5 kg (torso) o +5 kg (pierna) y vuelves al mínimo del rango.</li>
@@ -971,6 +1004,7 @@
       b.classList.remove('on'); b.setAttribute('aria-pressed', 'false');
     });
     toast('Sesión guardada: ' + day.name + ' (' + saved + ' ejercicios' + durTxt + ')');
+    syncUpload(day.name);
   });
 
   // ---- backup / restore ----
@@ -1033,6 +1067,131 @@
       ev.target.value = '';
     };
     reader.readAsText(file);
+  });
+
+  // ---- sincronización con GitHub (repo privado de datos) ----
+  // Sube progreso.json al guardar una sesión y baja pesos-semana.json al abrir.
+  // El token (de grano fino, limitado a ese repo) vive solo en localStorage.
+  var SYNC_KEY = 'rutina4.sync.v1';
+  var SYNC_FILE_UP = 'progreso.json';
+  var SYNC_FILE_DOWN = 'pesos-semana.json';
+  var sync = load(SYNC_KEY, { repo: '', token: '', pending: false, last: '' });
+  var syncEls = {
+    repo: document.getElementById('syncRepo'),
+    token: document.getElementById('syncToken'),
+    state: document.getElementById('syncState'),
+    log: document.getElementById('syncLog')
+  };
+
+  function syncReady() {
+    return !!(sync.repo && /^[\w.-]+\/[\w.-]+$/.test(sync.repo) && sync.token);
+  }
+  function syncSay(msg, cls) {
+    sync.last = fmtHM(Date.now()) + ' · ' + msg;
+    persist(SYNC_KEY, sync);
+    syncEls.log.textContent = sync.last;
+    syncEls.state.textContent = cls === 'bad' ? '⚠︎' : (cls === 'ok' ? '✓' : '');
+    syncEls.state.className = 'sync-state ' + (cls || '');
+  }
+  function syncRefreshForm() {
+    syncEls.repo.value = sync.repo || '';
+    syncEls.token.value = sync.token || '';
+    syncEls.log.textContent = sync.last || (syncReady() ? '' : 'Sin configurar: la app funciona igual, solo en local.');
+    syncEls.state.textContent = syncReady() ? (sync.pending ? '⚠︎' : '✓') : '';
+    syncEls.state.className = 'sync-state ' + (syncReady() ? (sync.pending ? 'bad' : 'ok') : '');
+  }
+  function ghUrl(path) {
+    return 'https://api.github.com/repos/' + sync.repo + '/contents/' + path;
+  }
+  function ghHeaders() {
+    return {
+      'Authorization': 'Bearer ' + sync.token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+  }
+  function b64enc(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function b64dec(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, '')))); }
+
+  // Descarga un archivo del repo: resuelve { json, sha } o { missing: true }
+  function ghGet(path) {
+    return fetch(ghUrl(path), { headers: ghHeaders(), cache: 'no-store' }).then(function (r) {
+      if (r.status === 404) return { missing: true };
+      if (!r.ok) throw new Error('GitHub ' + r.status);
+      return r.json().then(function (meta) {
+        return { json: JSON.parse(b64dec(meta.content || '')), sha: meta.sha };
+      });
+    });
+  }
+
+  function syncUpload(reason) {
+    if (!syncReady()) return Promise.resolve(false);
+    var body = { v: 2, exported: new Date().toISOString(), log: log, sessions: sessions, targets: targets };
+    var txt = JSON.stringify(body, null, 1);
+    return ghGet(SYNC_FILE_UP).then(function (cur) {
+      var payload = { message: 'progreso ' + (reason || 'manual') + ' ' + new Date().toISOString().slice(0, 16), content: b64enc(txt) };
+      if (cur && cur.sha) payload.sha = cur.sha;
+      return fetch(ghUrl(SYNC_FILE_UP), { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(payload) });
+    }).then(function (r) {
+      if (!r.ok) throw new Error('GitHub ' + r.status);
+      sync.pending = false;
+      syncSay('progreso subido', 'ok');
+      return true;
+    }).catch(function (e) {
+      sync.pending = true;
+      syncSay('no se pudo subir (' + (e && e.message || 'sin red') + '); se reintenta en el próximo guardado o al abrir', 'bad');
+      return false;
+    });
+  }
+
+  function syncDownloadTargets(quiet) {
+    if (!syncReady()) return Promise.resolve(false);
+    return ghGet(SYNC_FILE_DOWN).then(function (res) {
+      if (res.missing) { if (!quiet) syncSay('aún no hay pesos en el repo', ''); return false; }
+      var t = res.json;
+      if (!t || typeof t.ex !== 'object' || !t.week) throw new Error('formato de pesos');
+      var before = targets;
+      persist(TARGETS_KEY, t);
+      targets = pickTargets(t, TARGETS_BUILTIN);
+      if (targets !== before) {
+        PLAN.forEach(function (day) { day.ex.forEach(function (ex) { refreshExMeta(ex); }); });
+        refreshWeekNote();
+        toast('Pesos nuevos: ' + (t.label || t.week));
+        syncSay('pesos actualizados: ' + (t.label || t.week), 'ok');
+      } else if (!quiet) {
+        syncSay('los pesos ya estaban al día', 'ok');
+      }
+      return true;
+    }).catch(function (e) {
+      if (!quiet) syncSay('no se pudieron bajar los pesos (' + (e && e.message || 'sin red') + ')', 'bad');
+      return false;
+    });
+  }
+
+  document.getElementById('syncSaveBtn').addEventListener('click', function () {
+    sync.repo = syncEls.repo.value.trim();
+    sync.token = syncEls.token.value.trim();
+    persist(SYNC_KEY, sync);
+    if (!syncReady()) { syncSay('faltan el repo (usuario/nombre) o el token', 'bad'); return; }
+    syncSay('ajustes guardados; probando…', '');
+    syncDownloadTargets(false);
+  });
+  document.getElementById('syncUpBtn').addEventListener('click', function () {
+    if (!syncReady()) { syncSay('configura repo y token primero', 'bad'); return; }
+    syncSay('subiendo…', '');
+    syncUpload('manual');
+  });
+  document.getElementById('syncDownBtn').addEventListener('click', function () {
+    if (!syncReady()) { syncSay('configura repo y token primero', 'bad'); return; }
+    syncSay('bajando pesos…', '');
+    syncDownloadTargets(false);
+  });
+  document.getElementById('syncClearBtn').addEventListener('click', function () {
+    sync.token = '';
+    sync.pending = false;
+    persist(SYNC_KEY, sync);
+    syncRefreshForm();
+    toast('Token borrado: la app sigue en local');
   });
 
   function refreshWeekNote() {
@@ -1360,6 +1519,11 @@
   refreshSessNotes();
   refreshCardioNext();
   refreshWeekNote();
+  syncRefreshForm();
+  if (syncReady()) {
+    syncDownloadTargets(true);
+    if (sync.pending) syncUpload('reintento');
+  }
 })();
 </script>
 
