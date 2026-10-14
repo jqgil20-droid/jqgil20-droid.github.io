@@ -1,0 +1,6 @@
+# Solo se sube lo que necesita la web: index.html y sw.js.
+# Todo lo demás (copias de seguridad, plan en markdown, pesos, duplicados) se queda en local.
+*
+!.gitignore
+!index.html
+!sw.js
