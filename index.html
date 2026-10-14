@@ -1124,6 +1124,28 @@
     });
   }
 
+  // Un 404 en un archivo puede ser "no existe" o "el token no ve el repo":
+  // GitHub responde igual. Se consulta el repo para distinguirlo.
+  function syncDiagnose() {
+    return fetch('https://api.github.com/repos/' + sync.repo, { headers: ghHeaders(), cache: 'no-store' }).then(function (r) {
+      if (r.status === 404) {
+        syncSay('el token no ve el repo «' + sync.repo + '»: comprueba el nombre (usuario/nombre) y que el token se creó con acceso a ese repositorio', 'bad');
+      } else if (r.status === 401) {
+        syncSay('token no válido o caducado (401)', 'bad');
+      } else if (r.status === 403) {
+        syncSay('el token ve el repo pero no tiene permiso Contents (403)', 'bad');
+      } else if (r.ok) {
+        return r.json().then(function (meta) {
+          syncSay('repo accesible (rama ' + (meta.default_branch || '?') + ') pero sin ' + SYNC_FILE_DOWN + ' todavía', '');
+        });
+      } else {
+        syncSay('GitHub respondió ' + r.status, 'bad');
+      }
+    }).catch(function () {
+      syncSay('sin conexión con GitHub', 'bad');
+    });
+  }
+
   function syncUpload(reason) {
     if (!syncReady()) return Promise.resolve(false);
     var body = { v: 2, exported: new Date().toISOString(), log: log, sessions: sessions, targets: targets };
@@ -1147,7 +1169,10 @@
   function syncDownloadTargets(quiet) {
     if (!syncReady()) return Promise.resolve(false);
     return ghGet(SYNC_FILE_DOWN).then(function (res) {
-      if (res.missing) { if (!quiet) syncSay('aún no hay pesos en el repo', ''); return false; }
+      if (res.missing) {
+        if (!quiet) syncDiagnose();
+        return false;
+      }
       var t = res.json;
       if (!t || typeof t.ex !== 'object' || !t.week) throw new Error('formato de pesos');
       var before = targets;
