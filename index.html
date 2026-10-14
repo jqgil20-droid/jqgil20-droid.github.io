@@ -319,7 +319,7 @@
       <li><b>Serie top + descargas</b> (press de pecho y sentadilla en máquina): la 1ª serie marca el peso, a RIR 1-2, nunca al fallo. Al confirmarla, la app propone las 3 siguientes al 90 %. Cuando la serie top llegue al tope del rango, sube 2,5-5 kg.</li>
       <li><b>Notas:</b> cada ejercicio tiene un campo de texto (asiento, agarre, molestias…). Se guarda con la sesión y lo verás junto a la última marca y en el historial. Puedes guardar una nota sin series (p. ej. «talón molesto, sin cardio»).</li>
       <li><b>Duración de la sesión:</b> al apuntar tu primera serie, la app fija el inicio ~7 min antes (calentamiento y aproximaciones); al pulsar <b>Guardar sesión</b> apunta los minutos totales. Si un día se te olvida guardar, el marcador caduca solo a las 4 h — no quedan sesiones colgadas ni duraciones absurdas.</li>
-      <li><b>Cardio (miércoles, cinta):</b> la línea <b>«Hoy toca»</b> de ese día calcula sola, según tu historial, qué sesión corresponde: semanas 1-4 la progresión correr/caminar (sube el tiempo de carrera, no la velocidad) y después el ciclo 4×4 (3 semanas, RPE 8-9: solo palabras sueltas, corriendo o en cuesta rápida) + Zona 2 caminando (la 4ª, descarga). El botón <b>▶</b> guía la sesión entera con pitidos en cada cambio: globo verde = correr/fuerte, azul = caminar; para pararlo hay que tocarlo dos veces. Apunta minutos y km (o velocidad/cuesta): si repites el mismo nivel máximo dos 4×4 seguidos, aparece <b>▲ Sube ritmo</b>. Si el talón duele por la mañana, esa semana sin correr: cuesta o bici.</li>
+      <li><b>Cardio (miércoles, cinta):</b> la línea <b>«Hoy toca»</b> de ese día dice qué sesión corresponde y a qué velocidad (la fija el entrenador con los pesos de la semana, y puede repetir una semana si hace falta); sin esa indicación, la calcula según tu historial: semanas 1-4 la progresión correr/caminar (sube el tiempo de carrera, no la velocidad) y después el ciclo 4×4 (3 semanas, RPE 8-9: solo palabras sueltas, corriendo o en cuesta rápida) + Zona 2 caminando (la 4ª, descarga). El botón <b>▶</b> guía la sesión entera con pitidos en cada cambio: globo verde = correr/fuerte, azul = caminar; para pararlo hay que tocarlo dos veces. Apunta minutos y km (o velocidad/cuesta): si repites el mismo nivel máximo dos 4×4 seguidos, aparece <b>▲ Sube ritmo</b>. Si el talón duele por la mañana, esa semana sin correr: cuesta o bici.</li>
       <li><b>Temporizador:</b> arranca solo con el ✓ de cada serie; el chip ⏱ del ejercicio sigue sirviendo para lanzarlo a mano. Sonará cuando toque la siguiente serie. Tócalo de nuevo (abajo) para pararlo. Mientras corre, la pantalla se mantiene encendida sola. <b>Acepta las notificaciones</b> cuando la app te lo pida: así también avisa si estás en otra app (Android). Y si el navegador congeló el aviso mientras estabas fuera, suena nada más volver.</li>
       <li><b>Descarga</b> cada 6-8 semanas: 1 semana con la mitad de series y −20 % de peso.</li>
       <li>Haz una <b>copia de seguridad</b> de vez en cuando: los datos viven en este navegador.</li>
@@ -397,6 +397,8 @@
   var TARGETS_BUILTIN = {
     v: 2, week: '2026-10-14', label: 'Semana 14-25 oct · reajuste',
     note: 'Pesos de reajuste: todas las series al mismo peso, la primera con 2 reps en recámara. No es descarga formal: el reset de cargas ya quita fatiga. Si una serie sale con RIR 0, baja 2,5 kg la siguiente.',
+    // cardio: semana de fase 1 fijada (1-4), o '4x4' / 'z2'; velocidades en km/h
+    cardio: { week: 2, run: 8, walk: 5.5 },
     ex: {
       'sentadilla-maquina': { kg: 40, back: 35, reps: '6-8', n: 'top 40 a RIR 2; si la 2ª no llega a 6, descargas a 30' },
       'rumano-multi': { kg: 110, reps: '6-8', n: '3×8 limpias → 115' },
@@ -410,7 +412,7 @@
       'dominadas-lastre': { kg: 15, reps: '6-8', n: '3×8 → 12,5 de ayuda' },
       'curl-barra': { kg: 31.5, reps: '8-10', n: '3×10 → 34' },
       'press-frances': { kg: 24, reps: '8-10', n: 'olvida los 28: 3×10 a 24 → 26' },
-      'cinta-progresion': { kg: 8, reps: '', n: '8 km/h, 1 % cuesta: termina los bloques' },
+      'cinta-progresion': { kg: 8, reps: '', n: 'correr a 8 km/h, caminar a 5,5, cuesta 1 %: el objetivo es acabar todos los bloques hablando; si no puedes hablar, baja a 7,5' },
       'bulgara-multi': { kg: 10, reps: '8-10' },
       'hip-thrust': { kg: 100, reps: '10-12', n: '3×12 fácil → 110' },
       'femoral-sentado-b': { kg: 60, reps: '10-12' },
@@ -909,18 +911,34 @@
     return n;
   }
 
+  // Velocidades de la semana (km/h) si el entrenador las fija en los pesos semanales
+  function cardioCfg() {
+    return (targets && targets.cardio) || {};
+  }
+  function speedTxt() {
+    var c = cardioCfg();
+    if (!c.run && !c.walk) return '';
+    return ' · ' + (c.run ? 'correr ' + c.run + ' km/h' : '') + (c.run && c.walk ? ', ' : '') + (c.walk ? 'caminar ' + c.walk : '');
+  }
+
+  // Qué toca: por defecto se deduce del historial; el entrenador puede fijar la
+  // semana de fase 1 (1-4) o forzar '4x4' / 'z2' desde los pesos semanales.
   function cardioStatus() {
+    var c = cardioCfg();
+    var forced = c.week;
     var done = uniqueDates(['cinta-progresion']);
-    if (done < FASE1.length) {
-      var wk = FASE1[done];
-      return { fase: 1, week: done + 1, wk: wk,
-        txt: 'Hoy toca · Fase 1, semana ' + (done + 1) + ' de 4: ' +
-             wk.blocks + ' × [' + wk.run + ' min correr + ' + wk.walk + ' caminar]' };
+    var idx = (forced >= 1 && forced <= 4) ? forced - 1 : (forced ? -1 : done);
+    if (idx >= 0 && idx < FASE1.length) {
+      var wk = FASE1[idx];
+      return { fase: 1, week: idx + 1, wk: wk,
+        txt: 'Hoy toca · Fase 1, semana ' + (idx + 1) + ' de 4: ' +
+             wk.blocks + ' × [' + wk.run + ' min correr + ' + wk.walk + ' caminar]' + speedTxt() };
     }
     var m = uniqueDates(['cinta-4x4', 'cinta-z2']) % 4;
-    return m === 3
-      ? { fase: 2, txt: 'Hoy toca · Zona 2: 40-45 min caminata rápida (semana 4 de 4, descarga)' }
-      : { fase: 2, txt: 'Hoy toca · Intervalos 4×4 (semana ' + (m + 1) + ' de 4 del ciclo)' };
+    var z2 = forced === 'z2' || (forced !== '4x4' && m === 3);
+    return z2
+      ? { fase: 2, txt: 'Hoy toca · Zona 2: 40-45 min caminata rápida (semana 4 de 4, descarga)' + speedTxt() }
+      : { fase: 2, txt: 'Hoy toca · Intervalos 4×4 (semana ' + (m + 1) + ' de 4 del ciclo)' + speedTxt() };
   }
 
   function refreshCardioNext() {
@@ -1056,10 +1074,13 @@
         var data = JSON.parse(reader.result);
         var t = data && data.ex ? data : (data && data.targets && data.targets.ex ? data.targets : null);
         if (!t || typeof t.ex !== 'object' || !t.week) throw new Error('formato');
-        persist(TARGETS_KEY, t);
-        targets = pickTargets(t, TARGETS_BUILTIN);
+        var stored = load(TARGETS_KEY, null);
+        var newest = pickTargets(t, pickTargets(stored, TARGETS_BUILTIN));
+        if (newest === t) persist(TARGETS_KEY, t);
+        targets = newest;
         PLAN.forEach(function (day) { day.ex.forEach(function (ex) { refreshExMeta(ex); }); });
         refreshWeekNote();
+        refreshCardioNext();
         toast(targets === t ? 'Pesos importados: ' + (t.label || t.week) : 'La app ya tenía pesos más recientes');
       } catch (e) {
         toast('Ese archivo no es un plan de pesos válido');
@@ -1175,12 +1196,18 @@
       }
       var t = res.json;
       if (!t || typeof t.ex !== 'object' || !t.week) throw new Error('formato de pesos');
+      var stored = load(TARGETS_KEY, null);
+      if (stored && JSON.stringify(stored) === JSON.stringify(t)) {
+        if (!quiet) syncSay('los pesos ya estaban al día', 'ok');
+        return true;
+      }
       var before = targets;
       persist(TARGETS_KEY, t);
       targets = pickTargets(t, TARGETS_BUILTIN);
       if (targets !== before) {
         PLAN.forEach(function (day) { day.ex.forEach(function (ex) { refreshExMeta(ex); }); });
         refreshWeekNote();
+        refreshCardioNext();
         toast('Pesos nuevos: ' + (t.label || t.week));
         syncSay('pesos actualizados: ' + (t.label || t.week), 'ok');
       } else if (!quiet) {
@@ -1447,13 +1474,18 @@
     if (ex.id === 'cinta-progresion') {
       var st = cardioStatus();
       var wk = st.wk || FASE1[FASE1.length - 1];
-      seq.push({ sec: 300, work: false, lab: '🚶 calienta', msg: '¡A correr — bloque 1 de ' + wk.blocks + '!' });
+      var c = cardioCfg();
+      var runV = c.run ? ' a ' + c.run + ' km/h' : '';
+      var walkV = c.walk ? ' a ' + c.walk + ' km/h' : '';
+      var runLab = c.run ? ' ' + c.run : '';
+      var walkLab = c.walk ? ' ' + c.walk : '';
+      seq.push({ sec: 300, work: false, lab: '🚶 calienta' + walkLab, msg: '¡A correr' + runV + ' — bloque 1 de ' + wk.blocks + '!' });
       for (var i = 1; i <= wk.blocks; i++) {
-        seq.push({ sec: wk.run * 60, work: true, lab: '🏃 ' + i + '/' + wk.blocks,
-          msg: i < wk.blocks ? 'Camina ' + wk.walk + ' min suave' : '¡Sesión hecha! Camina 5 min para enfriar' });
+        seq.push({ sec: wk.run * 60, work: true, lab: '🏃 ' + i + '/' + wk.blocks + runLab,
+          msg: i < wk.blocks ? 'Camina ' + wk.walk + ' min suave' + walkV : '¡Sesión hecha! Camina 5 min para enfriar' });
         if (i < wk.blocks) {
-          seq.push({ sec: wk.walk * 60, work: false, lab: '🚶 ' + i + '/' + wk.blocks,
-            msg: '¡A correr — bloque ' + (i + 1) + ' de ' + wk.blocks + '!' });
+          seq.push({ sec: wk.walk * 60, work: false, lab: '🚶 ' + i + '/' + wk.blocks + walkLab,
+            msg: '¡A correr' + runV + ' — bloque ' + (i + 1) + ' de ' + wk.blocks + '!' });
         }
       }
     } else {
