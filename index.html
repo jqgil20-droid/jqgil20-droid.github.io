@@ -104,6 +104,7 @@
   }
   .chip.scheme { color: var(--accent); background: var(--accent-soft); }
   .chip.up { color: var(--up); background: var(--up-soft); }
+  .chip.miss { color: var(--ink-soft); background: var(--ground); border: 1px dashed var(--line); }
   button.chip-btn {
     appearance: none; border: 1px solid var(--accent); cursor: pointer;
     color: var(--accent); background: var(--surface);
@@ -497,6 +498,17 @@
     return (log[exId] && log[exId][0]) || null;
   }
 
+  // Objetivo semanal por serie cumplido: todas las series hechas y cada una con
+  // al menos las reps marcadas. Devuelve null si no hay objetivo por serie.
+  function hitGoal(ex, entry, tg) {
+    if (!tg || !Array.isArray(tg.reps) || !tg.reps.length || ex.cardio) return null;
+    if (!entry || entry.s.length < ex.sets) return false;
+    for (var i = 0; i < ex.sets; i++) {
+      if (!(entry.s[i] && +entry.s[i][1] >= +repsGoal(tg, i))) return false;
+    }
+    return true;
+  }
+
   // Series parejas: tope del rango en todas. Serie top: tope del rango en la 1ª.
   function hitTop(ex, entry) {
     if (ex.cardio) return !!ex.pace && paceStuck(ex);
@@ -819,7 +831,20 @@
       // Con pesos semanales, «sube peso» solo cuenta si la sesión se hizo ya con ellos
       var tgW = targetOf(ex.id) && targets.week ? targets.week.split('-') : null;
       var underTargets = !tgW || keyDate(entry.d) >= (+tgW[0] % 100) * 10000 + (+tgW[1]) * 100 + (+tgW[2]);
-      upEl.hidden = !(underTargets && hitTop(ex, entry));
+      var goalHit = underTargets ? hitGoal(ex, entry, targetOf(ex.id)) : null;
+      if (goalHit === null) {
+        upEl.className = 'chip up';
+        upEl.textContent = ex.hint || '▲ Sube peso';
+        upEl.hidden = !(underTargets && hitTop(ex, entry));
+      } else if (goalHit) {
+        upEl.className = 'chip up';
+        upEl.textContent = '✔ Objetivo cumplido · la semana que viene sube';
+        upEl.hidden = false;
+      } else {
+        upEl.className = 'chip miss';
+        upEl.textContent = '✗ Objetivo no cumplido · se repite';
+        upEl.hidden = false;
+      }
     } else {
       lastEl.textContent = 'Sin sesiones registradas todavía.';
       upEl.hidden = true;
