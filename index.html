@@ -313,7 +313,7 @@
     <summary>Cómo progresar (doble progresión)</summary>
     <ul>
       <li><b>Pesos de la semana (🎯):</b> cada ejercicio lleva el peso que toca esta semana, marcado por el entrenador a partir de tu progreso. Aparece como chip y como valor gris en kg. Con la <b>sincronización con GitHub</b> configurada, el progreso se sube solo al guardar y los pesos nuevos se bajan solos al abrir la app. Sin ella, vale <b>Copia de seguridad</b> → se la mandas → <b>Importar pesos</b>.</li>
-      <li><b>Rellena kg, reps y RIR</b> de cada serie y toca el <b>✓</b> de esa fila: la serie queda en verde y arranca sola el descanso del ejercicio. En la <b>última serie</b> el ✓ no lanza descanso. Si dejas kg o reps vacíos, el ✓ copia el valor gris (objetivo o última sesión); el RIR no se rellena solo. Tócalo otra vez para desmarcar. Al acabar el día pulsa <b>Guardar sesión</b>.</li>
+      <li><b>Rellena kg, reps y RIR</b> de cada serie y toca el <b>✓</b> de esa fila: la serie queda en verde y arranca sola el descanso del ejercicio. En la <b>última serie</b> el ✓ no lanza descanso. Los valores grises de kg y reps son el <b>objetivo de esa serie</b> marcado para la semana (si no hay, la última sesión): si los dejas vacíos, el ✓ los copia; el RIR no se rellena solo. Tócalo otra vez para desmarcar. Al acabar el día pulsa <b>Guardar sesión</b>.</li>
       <li><b>RIR</b> = reps que te habrías podido hacer de más. Apunta el que creas de verdad, aunque te equivoques: sirve para ajustar los pesos de la semana siguiente. RIR 0 = no salía otra. Regla: si pierdes más de 2 reps entre la 1ª y la última serie al mismo peso, la 1ª fue al fallo.</li>
       <li><b>Mismo peso en todas las series</b> (casi todos los ejercicios): cuando llegues al <b>tope del rango en todas</b>, la app marca <b>▲ Sube peso</b>: +2,5 kg (torso) o +5 kg (pierna) y vuelves al mínimo del rango.</li>
       <li><b>Serie top + descargas</b> (press de pecho y sentadilla en máquina): la 1ª serie marca el peso, a RIR 1-2, nunca al fallo. Al confirmarla, la app propone las 3 siguientes al 90 %. Cuando la serie top llegue al tope del rango, sube 2,5-5 kg.</li>
@@ -393,39 +393,40 @@
   // (se actualizan al actualizar la app) y también se pueden importar como JSON
   // con el botón «Importar pesos»; manda el que tenga la fecha más reciente.
   // ex: exId -> { kg: peso de todas las series (o de la serie top), back: peso de
-  // las descargas (solo ejercicios top), reps: 'min-max', n: nota corta }.
+  // las descargas (solo ejercicios top), reps: objetivo de reps por serie [8, 8, 7]
+  // (o 'min-max' en archivos antiguos: entonces se usa el mínimo), n: nota corta }.
   var TARGETS_BUILTIN = {
-    v: 2, week: '2026-10-14', label: 'Semana 14-25 oct · reajuste',
-    note: 'Pesos de reajuste: todas las series al mismo peso, la primera con 2 reps en recámara. No es descarga formal: el reset de cargas ya quita fatiga. Si una serie sale con RIR 0, baja 2,5 kg la siguiente.',
+    v: 2, week: '2026-10-19', label: 'Semana 19-25 oct · 1ª progresión',
+    note: 'Novedad: las repes ya no son un rango, son un objetivo por serie puesto por mí a partir de tu última sesión (sale en gris en cada fila; si lo dejas vacío, el ✓ lo copia). Regla: donde el peso se mantiene, te pido una rep más que la última vez en las series que no llegaron al tope; donde el peso sube, te pido el mínimo. Cuando cumples todas, la semana siguiente sube el peso. Si una serie no llega, apunta lo que ha salido y no cambies el peso. Cardio: repites la semana 2 a 7,5 km/h; objetivo acabar el 5º bloque por debajo de 165 ppm y hablando. Sobre el RIR: en las series top el objetivo es 1-3, para en la primera rep claramente lenta; si dudas, apunta el bajo.',
     // cardio: semana de fase 1 fijada (1-4), o '4x4' / 'z2'; velocidades en km/h
-    cardio: { week: 2, run: 8, walk: 5.5 },
+    cardio: { week: 2, run: 7.5, walk: 5.5 },
     ex: {
-      'sentadilla-maquina': { kg: 40, back: 35, reps: '6-8', n: 'top 40 a RIR 2; si la 2ª no llega a 6, descargas a 30' },
-      'rumano-multi': { kg: 110, reps: '6-8', n: '3×8 limpias → 115' },
-      'prensa': { kg: 130, reps: '8-10', n: 'venías de 3×10 a 120' },
-      'femoral-sentado-a': { kg: 67.5, reps: '8-10', n: '3×10 → 70' },
-      'gemelo-pie': { kg: 85, reps: '8-10', n: '6 semanas sin hacerlo: 85, no 90' },
-      'abs-a': { kg: 31.5, reps: '10-12' },
-      'press-maquina': { kg: 72.5, back: 65, reps: '6-8', n: 'top 72,5 a RIR 1-2, descargas 65' },
-      'remo-t': { kg: 35, reps: '6-8', n: '4×8 → 37,5' },
-      'press-militar': { kg: 52.5, reps: '6-8', n: '3×8 → 55' },
-      'dominadas-lastre': { kg: 15, reps: '6-8', n: '3×8 → 12,5 de ayuda' },
-      'curl-barra': { kg: 31.5, reps: '8-10', n: '3×10 → 34' },
-      'press-frances': { kg: 24, reps: '8-10', n: 'olvida los 28: 3×10 a 24 → 26' },
-      'cinta-progresion': { kg: 8, reps: '', n: 'correr a 8 km/h, caminar a 5,5, cuesta 1 %: el objetivo es acabar todos los bloques hablando; si no puedes hablar, baja a 7,5' },
-      'bulgara-multi': { kg: 10, reps: '8-10' },
-      'hip-thrust': { kg: 100, reps: '10-12', n: '3×12 fácil → 110' },
-      'femoral-sentado-b': { kg: 60, reps: '10-12' },
-      'ext-cuadriceps': { kg: 70, reps: '12-15' },
-      'gemelo-sentado': { kg: 25, reps: '12-15' },
-      'abs-b': { kg: 31.5, reps: '10-15' },
-      'inclinado-maquina': { kg: null, reps: '8-10', n: 'primera vez: busca un peso para 10 reps a RIR 2 y repítelo en las 4' },
-      'jalon': { kg: 70, reps: '10-12', n: '4×12 → 72,5' },
-      'remo-polea': { kg: 54, reps: '10-12', n: '3×12 → 59' },
-      'cruces-polea': { kg: 7.5, reps: '12-15', n: 'máquina del 9/10' },
-      'laterales': { kg: 35, reps: '12-15', n: '4×15 → 37,5' },
-      'curl-inclinado': { kg: 10, reps: '10-12', n: '3×12 → 12' },
-      'triceps-polea': { kg: 22.5, reps: '12-15', n: '3×15 → 25' }
+      'sentadilla-maquina': { kg: 45, back: 40, reps: [6, 6, 6, 6], n: 'peso nuevo: top 45×6 a RIR 1-3, descargas 40×6. Si la top no llega a 6, descargas a 37,5' },
+      'rumano-multi': { kg: 110, reps: [8, 7, 7], n: 'el 14/10: 7-6-6 a RIR 2. Una más en cada serie. 3×8 → 115' },
+      'prensa': { kg: 130, reps: [9, 8, 8], n: '8-8-8, la 3ª a RIR 0: 9 en la 1ª y repite 8 sin llegar al fallo. 3×10 → 140' },
+      'femoral-sentado-a': { kg: 67.5, reps: [9, 8, 8], n: '8-8-8, la 3ª a RIR 0: 9 en la 1ª, 8 en el resto sin fallo. 3×10 → 70' },
+      'gemelo-pie': { kg: 90, reps: [8, 8, 8, 8], n: 'peso nuevo (4×9 a RIR 3 con 85): 4×8' },
+      'abs-a': { kg: 31.5, reps: [11, 11, 10], n: '3×10 a RIR 1: una más en las dos primeras. 3×12 → 34' },
+      'press-maquina': { kg: 72.5, back: 65, reps: [7, 8, 8, 8], n: 'el 13/10 aún hiciste pirámide. Esquema de verdad: top 72,5×7 a RIR 1-2 y 3 descargas a 65×8. Si la top sale 8 a RIR 2 → 75' },
+      'remo-t': { kg: 35, reps: [8, 8, 8, 8], n: 'el 13/10 a 35: 8-7-7 tras una serie a 40. Empieza a 35 directamente y saca 4×8 → 37,5' },
+      'press-militar': { kg: 52.5, reps: [8, 8, 8], n: '8-8-7: te falta una rep en la 3ª. 3×8 → 55' },
+      'dominadas-lastre': { kg: 15, reps: [8, 8, 7], n: '3×7 con 15 de ayuda: una más en las dos primeras. 3×8 → 12,5 de ayuda' },
+      'curl-barra': { kg: 31.5, reps: [10, 10, 10], n: '10-9-10: te falta una en la 2ª. 3×10 → 34' },
+      'press-frances': { kg: 24, reps: [10, 9, 9], n: 'nada de serie a 28,5: las 3 a 24. Venías de 9-8 → 10-9-9. 3×10 → 26' },
+      'cinta-progresion': { kg: 7.5, reps: '', n: 'repite semana 2 (5 × [4 correr + 2 caminar]) a 7,5 km/h, caminar 5,5, cuesta 1 %. El jueves acabaste a 180 ppm viniendo de 140 en el 1er bloque: eso es ir por encima del umbral. Objetivo: acabar el 5º bloque por debajo de 165 ppm y hablando. Si lo cumples, la semana que viene pasamos a la 3 a esta velocidad; si el último bloque pasa de 170, baja a 7' },
+      'bulgara-multi': { kg: 10, reps: [9, 9, 9], n: '2 meses sin hacerla (10-10-8 en agosto): 3×9 por pierna. 3×10 → 12,5' },
+      'hip-thrust': { kg: 100, reps: [12, 12, 12], n: '3×12 en agosto: si vuelve a salir fácil → 110' },
+      'femoral-sentado-b': { kg: 60, reps: [10, 10, 10], n: 'peso nuevo (55×12 en agosto): 3×10. 3×12 → 65' },
+      'ext-cuadriceps': { kg: 70, reps: [13, 13, 12], n: '13-12 en agosto: 13-13-12. 3×15 → 75' },
+      'gemelo-sentado': { kg: 25, reps: [12, 12, 12, 12], n: 'peso nuevo (20×12 en agosto): 4×12. 4×15 → 27,5' },
+      'abs-b': { kg: 31.5, reps: [13, 13, 12], n: '3×12 en agosto: una más en las dos primeras. 3×15 → 34' },
+      'inclinado-maquina': { kg: null, reps: [10, 10, 10, 10], n: 'primera vez: busca un peso para 10 reps a RIR 2 y repítelo en las 4' },
+      'jalon': { kg: 70, reps: [11, 11, 10, 10], n: 'el 9/10 pirámide 75→67,5 ×9. A 70 fijo: 11-11-10-10. 4×12 → 72,5' },
+      'remo-polea': { kg: 54, reps: [12, 11, 11], n: 'a 54 hiciste 11-10 tras una a 64. Las 3 a 54: 12-11-11. 3×12 → 59' },
+      'cruces-polea': { kg: 7.5, reps: [13, 13, 12], n: 'máquina del 9/10, 12 a 7,5: 13-13-12. 3×15 → 10' },
+      'laterales': { kg: 35, reps: [13, 12, 12, 12], n: 'pirámide 42,5→32,5 el 9/10. A 35 fijo: 13-12-12-12. 4×15 → 37,5' },
+      'curl-inclinado': { kg: 10, reps: [12, 12, 12], n: '12-11-11: una más en la 2ª y 3ª. 3×12 → 12' },
+      'triceps-polea': { kg: 22.5, reps: [14, 13, 12], n: '25×13, 25×11, 22,5×10 el 9/10. A 22,5 fijo: 14-13-12. 3×15 → 25' }
     }
   };
 
@@ -511,6 +512,23 @@
   // Peso de descarga: 90 % del top redondeado a 2,5 kg
   function backoffKg(kg) {
     return Math.round(kg * 0.9 / 2.5) * 2.5;
+  }
+
+  // Objetivo de reps de una serie: tg.reps es una lista por serie [8, 8, 7]
+  // (si tiene menos elementos que series, repite el último) o, en archivos
+  // antiguos, un rango 'min-max' del que se toma el mínimo. null si no hay.
+  function repsGoal(tg, setIdx) {
+    if (!tg || tg.reps == null || tg.reps === '') return null;
+    if (Array.isArray(tg.reps)) {
+      if (!tg.reps.length) return null;
+      return tg.reps[Math.min(setIdx, tg.reps.length - 1)];
+    }
+    var m = String(tg.reps).split('-')[0];
+    return m === '' ? null : m;
+  }
+  function fmtRepsGoal(tg) {
+    if (!tg || tg.reps == null || tg.reps === '') return '';
+    return Array.isArray(tg.reps) ? tg.reps.join('/') : String(tg.reps);
   }
 
   function fmtRir(entry) {
@@ -754,7 +772,8 @@
           if (+inp.dataset.field === F_KG) inp.placeholder = bk;
         });
       }
-      toast('Descargas: ' + bk + ' kg × ' + ex.rmin + '-' + ex.rmax);
+      var bkGoal = repsGoal(targetOf(ex.id), 1);
+      toast('Descargas: ' + bk + ' kg × ' + (bkGoal != null ? bkGoal : ex.rmin + '-' + ex.rmax));
     }
     if (row[F_RIR] == null) toast('Apunta el RIR cuando puedas');
     var isLast = setIdx >= ex.sets - 1;
@@ -818,7 +837,7 @@
         goalEl.hidden = false;
         goalEl.textContent = '🎯 ' + (ex.top
           ? 'top ' + tg.kg + ' kg · descargas ' + (tg.back != null ? tg.back : backoffKg(tg.kg)) + ' kg'
-          : tg.kg + ' kg × ' + ex.sets) + (tg.reps ? ' · ' + tg.reps : '');
+          : tg.kg + ' kg × ' + ex.sets) + (fmtRepsGoal(tg) ? ' · ' + fmtRepsGoal(tg) + ' reps' : '');
       } else {
         goalEl.hidden = true;
       }
@@ -831,8 +850,8 @@
       var lastV = (entry && entry.s[si] != null && entry.s[si][f] != null) ? entry.s[si][f] : '';
       if (f === F_KG && tg && tg.kg != null && !ex.cardio) {
         inp.placeholder = (ex.top && si > 0) ? (tg.back != null ? tg.back : backoffKg(tg.kg)) : tg.kg;
-      } else if (f === F_REPS && tg && tg.reps && !ex.cardio) {
-        inp.placeholder = String(tg.reps).split('-')[0];
+      } else if (f === F_REPS && !ex.cardio && repsGoal(tg, si) != null) {
+        inp.placeholder = repsGoal(tg, si);
       } else if (f === F_RIR) {
         inp.placeholder = 'RIR';
       } else {
