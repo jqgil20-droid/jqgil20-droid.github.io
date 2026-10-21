@@ -338,7 +338,7 @@
       <li><b>Notas:</b> cada ejercicio tiene un campo de texto (asiento, agarre, molestias…). Se guarda con la sesión y lo verás junto a la última marca y en el historial. Puedes guardar una nota sin series (p. ej. «talón molesto, sin cardio»).</li>
       <li><b>Duración de la sesión:</b> al apuntar tu primera serie, la app fija el inicio ~7 min antes (calentamiento y aproximaciones); al pulsar <b>Guardar sesión</b> apunta los minutos totales. Si un día se te olvida guardar, el marcador caduca solo a las 4 h — no quedan sesiones colgadas ni duraciones absurdas.</li>
       <li><b>Cardio (miércoles, cinta):</b> la línea <b>«Hoy toca»</b> de ese día dice qué sesión corresponde y a qué velocidad (la fija el entrenador con los pesos de la semana, y puede repetir una semana si hace falta); sin esa indicación, la calcula según tu historial: semanas 1-4 la progresión correr/caminar (sube el tiempo de carrera, no la velocidad) y después el ciclo 4×4 (3 semanas, RPE 8-9: solo palabras sueltas, corriendo o en cuesta rápida) + Zona 2 caminando (la 4ª, descarga). El botón <b>▶</b> guía la sesión entera con pitidos en cada cambio: globo verde = correr/fuerte, azul = caminar; para pararlo hay que tocarlo dos veces. Apunta minutos y km (o velocidad/cuesta): si repites el mismo nivel máximo dos 4×4 seguidos, aparece <b>▲ Sube ritmo</b>. Si el talón duele por la mañana, esa semana sin correr: cuesta o bici.</li>
-      <li><b>Temporizador:</b> arranca solo con el ✓ de cada serie; el chip ⏱ del ejercicio sigue sirviendo para lanzarlo a mano. Al acabar, la píldora se pone <b>roja y parpadea</b>, pita y vibra varias veces y, si no respondes, manda una notificación: toca la pantalla para apagarla. El pitido usa el <b>volumen multimedia</b> del móvil (no el de llamadas). Para cortar un descanso a medias, toca la píldora ⏱ de abajo. Mientras corre, la pantalla se mantiene encendida sola. <b>Acepta las notificaciones</b> cuando la app te lo pida: así también avisa si estás en otra app (Android). Y si el navegador congeló el aviso mientras estabas fuera, suena nada más volver.</li>
+      <li><b>Temporizador:</b> arranca solo con el ✓ de cada serie; el chip ⏱ del ejercicio sigue sirviendo para lanzarlo a mano. Al acabar, la píldora se pone <b>roja y parpadea</b>, pita y vibra varias veces y, si no respondes, manda una notificación: toca la pantalla para apagarla. El pitido usa el <b>volumen multimedia</b> del móvil (no el de llamadas). Para cortar un descanso a medias, toca la píldora ⏱ de abajo. Mientras corre, la pantalla se mantiene encendida sola. <b>Puedes bloquear el móvil</b>: el aviso suena igual. En Android, con Spotify puesto, el pitido se mezcla con la música y Spotify no se para; en iPhone, Spotify se pausa durante el descanso. <b>Acepta las notificaciones</b> cuando la app te lo pida: en Android 17 el sistema no deja sonar al navegador con el móvil bloqueado, y entonces el aviso llega como notificación, con su sonido. Si durante el descanso te vas a otra app (por ejemplo, a elegir canción), vuelve a esta antes de bloquear: si se queda detrás, el móvil puede congelar el navegador al cabo de un minuto. Y si el navegador congeló el aviso mientras estabas fuera, suena nada más volver.</li>
       <li><b>Descarga</b> cada 6-8 semanas: 1 semana con la mitad de series y −20 % de peso.</li>
       <li>Haz una <b>copia de seguridad</b> de vez en cuando: los datos viven en este navegador.</li>
     </ul>
@@ -1346,8 +1346,9 @@
   function wkrStart() { if (wkr) { try { wkr.postMessage('start'); } catch (e) {} } }
   function wkrStop() { if (wkr && !rest.active && !alarm.on) { try { wkr.postMessage('stop'); } catch (e) {} } }
 
-  // Mientras corre el temporizador, retener un Web Lock: Chrome no congela
-  // pestañas con un lock activo.
+  // Mientras corre el temporizador (y la alarma), retener un Web Lock: Chrome de
+  // escritorio no congela pestañas con un lock activo. En Android no basta: allí
+  // lo que evita que congele la pestaña es el hilo de fondo audible (más abajo).
   var lockRelease = null;
   function grabTabLock() {
     try {
@@ -1364,7 +1365,18 @@
 
   function ensureAudio() {
     try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (!actx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        // 'playback': búferes más grandes, menos batería con el hilo de fondo sonando
+        try { actx = new AC({ latencyHint: 'playback' }); } catch (e1) { actx = new AC(); }
+        // Si el sistema para el audio a medias (llamada, cambio de auriculares),
+        // reanudarlo y reprogramar los pitidos sobre la hora real
+        actx.onstatechange = function () {
+          if (!rest.active && !alarm.on) return;
+          if (actx.state === 'running') { if (!audioInSync()) scheduleAudio(); }
+          else actx.resume().catch(function () {});
+        };
+      }
       // iPhone (iOS 17+): canal de reproducción, para que el interruptor de
       // silencio del lateral no apague Web Audio
       try {
@@ -1378,98 +1390,193 @@
 
   // Tono: onda cuadrada ~1 kHz alternando con su quinta, 4 pulsos. Los
   // altavoces de móvil rinden ahí y un timbre con armónicos atraviesa la
-  // música del gimnasio mejor que el seno suave de antes.
+  // música del gimnasio mejor que un seno suave.
   var TONE = { f: 1047, n: 4, on: 0.18, gap: 0.12, gain: 0.6 };
   var TONE_LEN = TONE.n * (TONE.on + TONE.gap);
 
+  // Muestras del pitido a sr Hz: cuadrada de banda limitada (armónicos impares
+  // por debajo de Nyquist, como el oscilador 'square' de Web Audio) con rampas
+  // cortas para que no chasque. La usan Web Audio y el WAV del <audio>.
+  function beepSamples(sr) {
+    var step = TONE.on + TONE.gap, out = new Float32Array(Math.ceil(sr * TONE_LEN));
+    for (var p = 0; p < TONE.n; p++) {
+      var f = p % 2 ? TONE.f * 1.5 : TONE.f, s0 = Math.round(p * step * sr), len = Math.round(TONE.on * sr);
+      for (var i = 0; i < len && s0 + i < out.length; i++) {
+        var u = i / sr, x = 0;
+        for (var k = 1; k * f < sr / 2; k += 2) x += Math.sin(2 * Math.PI * k * f * u) / k;
+        out[s0 + i] = x * (4 / Math.PI) * TONE.gain * Math.min(1, u / 0.015, (TONE.on - u) / 0.03);
+      }
+    }
+    return out;
+  }
+
+  var beepBuf = null;
+  function beepBuffer() {
+    if (!beepBuf || beepBuf.sampleRate !== actx.sampleRate) {
+      var s = beepSamples(actx.sampleRate);
+      beepBuf = actx.createBuffer(1, s.length, actx.sampleRate);
+      beepBuf.getChannelData(0).set(s);
+    }
+    return beepBuf;
+  }
+  // Un pitido que arranca en el instante t del reloj de audio
+  function beepAt(t) {
+    var src = actx.createBufferSource();
+    src.buffer = beepBuffer();
+    src.connect(actx.destination);
+    src.start(t);
+    return src;
+  }
+  // Pitido inmediato: la red de seguridad cuando lo programado no cuadra
   function beep() {
     if (!actx) return;
     try {
-      if (actx.state !== 'running') actx.resume().then(function () { tones(); }).catch(function () {});
-      else tones();
+      if (actx.state === 'running') { beepAt(actx.currentTime + 0.02); return; }
+      // Si el audio tarda en volver, ese pitido ya no toca (lo que queda se
+      // reprograma): que no suene a destiempo, p. ej. tras darte por enterado
+      var asked = Date.now();
+      actx.resume().then(function () { if (Date.now() - asked < 2000) beepAt(actx.currentTime + 0.02); }).catch(function () {});
     } catch (e) {}
   }
 
-  function tones(offsetSec, track) {
+  // ---- hilo de fondo: que el móvil no apague el audio con la pantalla bloqueada ----
+  // Con la salida en silencio digital, Chrome cambia a los 30 s la salida de
+  // audio real por una "falsa" y la pestaña oculta deja de contar como
+  // "sonando": Chrome la congela al minuto (y con ella el worker y el audio) y
+  // Android puede dormir el procesador. El pitido programado y los temporizadores
+  // se quedan esperando a que algo despierte el móvil: por eso no sonaba.
+  // Mientras dura el descanso (y la alarma) suena un tono de 20 Hz a -57 dB:
+  // para Chrome no es silencio y pasa su umbral de "audible" (-72 dB), así que
+  // la salida real sigue abierta, Android no duerme el procesador y la pestaña
+  // conserva la prioridad de "reproduciendo audio" y no se congela. Pero nadie
+  // lo oye: el altavoz del móvil no reproduce 20 Hz y en auriculares queda muy
+  // por debajo del umbral de audición. Chrome trata Web Audio como sonido
+  // "ambiente", que no toca el foco de audio de Android: Spotify sigue sonando.
+  // (En iPhone, con la sesión de audio 'playback', este mismo hilo mantiene vivo
+  // el audio de la página con la pantalla bloqueada; ahí Spotify se pausa.)
+  var KEEP = { f: 20, gain: 0.002 };
+  var keep = null;
+  // Mantenerlo hasta el instante t del reloj de audio: tope por si el
+  // JavaScript ya no vuelve a correr
+  function keepAliveTill(t) {
     try {
-      var t = actx.currentTime + (offsetSec || 0);
-      var gen = schedGen;
-      if (track) schedAt = t;
-      for (var i = 0; i < TONE.n; i++) {
-        var t0 = t + i * (TONE.on + TONE.gap);
-        var o = actx.createOscillator(), g = actx.createGain();
-        o.type = 'square';
-        o.frequency.value = i % 2 ? TONE.f * 1.5 : TONE.f;
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(TONE.gain, t0 + 0.015);
-        g.gain.setValueAtTime(TONE.gain, t0 + TONE.on - 0.03);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + TONE.on);
-        o.connect(g);
-        g.connect(actx.destination);
-        o.start(t0);
-        o.stop(t0 + TONE.on + 0.02);
-        if (track) {
-          sched.push({ o: o, g: g });
-          // El último pulso avisa de que el pitido programado llegó a sonar de verdad
-          if (i === TONE.n - 1) o.onended = function () { if (gen === schedGen) schedPlayed = true; };
-        }
-      }
+      if (keep && actx.currentTime < keep.end - 0.1) { keep.o.stop(t); keep.end = t; return; }
+      keepAliveOff();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.frequency.value = KEEP.f;
+      g.gain.value = KEEP.gain;
+      o.connect(g);
+      g.connect(actx.destination);
+      o.start();
+      o.stop(t);
+      keep = { o: o, g: g, end: t };
     } catch (e) {}
   }
+  function keepAliveOff() {
+    if (!keep) return;
+    var k = keep;
+    keep = null;
+    try { k.o.stop(0); } catch (e) {}
+    try { k.g.disconnect(); } catch (e) {}
+  }
 
-  // Pitido pre-programado en el reloj de audio: el hilo de audio lo reproduce a
-  // su hora aunque el navegador congele el JavaScript de la página.
-  var sched = [];
-  var schedAt = 0;       // hora del pitido en el reloj de audio
-  var schedGen = 0;      // generación: invalida callbacks tardíos de un descanso anterior
-  var schedPlayed = false;
-  function scheduleBeep() {
-    if (!actx || !rest.active) return;
+  // ---- pitidos programados en el reloj de audio ----
+  // Todos los que faltan (cambios de bloque de los intervalos y la alarma final
+  // completa: ALARM_MAX pitidos cada ALARM_EVERY) se programan de una vez: el
+  // hilo de audio los toca a su hora aunque el JavaScript vaya con retraso o
+  // esté parado. Tocar la pantalla los cancela.
+  var sched = [];        // nodos de los pitidos programados
+  var schedWall = [];    // hora (reloj normal, ms) de cada uno
+  var anchor = null;     // reloj de audio ↔ reloj normal al programar
+  var schedGen = 0;      // invalida reprogramaciones que llegan tarde
+  var lastResched = 0;
+
+  // Horas (reloj normal, ms) de los pitidos que quedan
+  function beepPlan() {
+    var t = [], end;
+    if (rest.active) {
+      end = rest.end;
+      if (rest.q) {
+        for (var i = rest.qi; i < rest.q.length - 1; i++) { t.push(end); end += rest.q[i + 1].sec * 1000; }
+      }
+    } else if (alarm.on) {
+      end = alarm.base;
+    } else {
+      return t;
+    }
+    for (var k = 0; k < ALARM_MAX; k++) t.push(end + k * ALARM_EVERY);
+    return t;
+  }
+
+  function scheduleAudio() {
+    if (!actx || (!rest.active && !alarm.on)) return;
     var gen = ++schedGen;
-    schedPlayed = false;
+    lastResched = Date.now();
     function go() {
-      if (gen !== schedGen || !rest.active) return;
-      var sec = (rest.end - Date.now()) / 1000;  // sobre la hora real, no sobre "ahora + sec" de cuando se pidió
-      if (sec > 0.05) tones(sec, true);
+      if (gen !== schedGen || (!rest.active && !alarm.on)) return;
+      dropScheduled();
+      var nw = Date.now(), na = actx.currentTime, plan = beepPlan();
+      anchor = { a: na, w: nw };
+      plan.forEach(function (w) {
+        var dt = (w - nw) / 1000;
+        if (dt > 0.05) { sched.push(beepAt(na + dt)); schedWall.push(w); }
+      });
+      if (plan.length) keepAliveTill(na + (plan[plan.length - 1] - nw) / 1000 + TONE_LEN + 2);
     }
     try {
       if (actx.state !== 'running') actx.resume().then(go).catch(function () {});
       else go();
     } catch (e) {}
   }
-  function cancelScheduled() {
-    schedGen++;
+  function dropScheduled() {
     sched.forEach(function (s) {
-      try { s.g.gain.cancelScheduledValues(0); s.g.gain.value = 0; } catch (e) {}
-      try { s.o.stop(0); } catch (e) {}
-      try { s.g.disconnect(); } catch (e) {}
+      try { s.stop(0); } catch (e) {}
+      try { s.disconnect(); } catch (e) {}
     });
     sched = [];
-    schedPlayed = false;
+    schedWall = [];
+  }
+  function cancelScheduled() {
+    schedGen++;
+    dropScheduled();
+  }
+
+  // ¿Sigue el reloj de audio al reloj normal? Si el audio se paró un rato
+  // (llamada, cambio de salida, móvil dormido), lo programado va con retraso.
+  function audioInSync() {
+    try {
+      return !!(actx && anchor && actx.state === 'running' &&
+        Math.abs(actx.currentTime - anchor.a - (Date.now() - anchor.w) / 1000) < 0.5);
+    } catch (e) { return false; }
+  }
+  // ¿Hay un pitido programado para la hora w?
+  function scheduledAt(w) {
+    for (var i = 0; i < schedWall.length; i++) if (Math.abs(schedWall[i] - w) < 50) return true;
+    return false;
+  }
+  // Audio en marcha pero desfasado: reprogramar lo que queda sobre la hora real
+  function checkDrift() {
+    if (schedWall.length && actx && actx.state === 'running' &&
+        Date.now() - lastResched > 1000 && !audioInSync()) scheduleAudio();
   }
 
   // Segundo canal de sonido: un <audio> con el mismo pitido en WAV (generado
-  // aquí, sin archivo). En iPhone el interruptor de silencio apaga Web Audio
-  // pero no los elementos de audio; en Android es otra vía si el contexto de
-  // audio quedó suspendido. Suenan los dos a la vez: mejor doble que ninguno.
+  // aquí, sin archivo). Es otra vía si el audio de la página se quedó parado, y
+  // al durar menos de 5 s Chrome solo le pide a la música de otras apps que baje
+  // un momento, no que se pare. Con el móvil bloqueado Android 15+ le niega ese
+  // permiso y no suena: el aviso que cuenta es el de Web Audio, que no lo
+  // necesita. No pausarlo nunca a medias: Chrome mantendría bajada la música.
+  // Suena a la vez que Web Audio: mejor doble que ninguno.
   var alarmEl = null, alarmElUnlocked = false;
   function buildWav() {
-    var sr = 22050, step = TONE.on + TONE.gap, total = Math.ceil(sr * TONE_LEN);
+    var sr = 22050, s = beepSamples(sr), total = s.length;
     var buf = new ArrayBuffer(44 + total * 2), v = new DataView(buf);
-    function str(o, s) { for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    function str(o, x) { for (var i = 0; i < x.length; i++) v.setUint8(o + i, x.charCodeAt(i)); }
     str(0, 'RIFF'); v.setUint32(4, 36 + total * 2, true); str(8, 'WAVE');
     str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
     v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
     str(36, 'data'); v.setUint32(40, total * 2, true);
-    for (var i = 0; i < total; i++) {
-      var tt = i / sr, k = Math.floor(tt / step), u = tt - k * step, s = 0;
-      if (u < TONE.on) {
-        var f = k % 2 ? TONE.f * 1.5 : TONE.f;
-        var env = Math.min(1, u / 0.015, (TONE.on - u) / 0.03);
-        s = (Math.sin(2 * Math.PI * f * tt) >= 0 ? 1 : -1) * TONE.gain * env;
-      }
-      v.setInt16(44 + i * 2, Math.round(s * 32767), true);
-    }
+    for (var i = 0; i < total; i++) v.setInt16(44 + i * 2, Math.round(Math.max(-1, Math.min(1, s[i])) * 32767), true);
     return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
   }
   try {
@@ -1527,8 +1634,11 @@
     try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {}
   }
 
-  // Notificación del sistema: avisa aunque estés en otra app (Android). Usa el
-  // volumen de notificaciones, distinto del multimedia: si uno está a cero, el otro no.
+  // Notificación del sistema. Usa el volumen de notificaciones, distinto del
+  // multimedia: si uno está a cero, el otro no. Y su sonido lo pone el sistema, no
+  // el navegador: en Android 17, con el móvil bloqueado, el sistema silencia el
+  // audio de las apps sin servicio en primer plano (Chrome incluido) y la
+  // notificación es lo único que suena.
   function askNotifPermission() {
     try {
       if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
@@ -1552,21 +1662,43 @@
       }
     } catch (e) {}
   }
+  // Al darte por enterado, quitar la notificación que se quedó en la barra
+  function closeNotif() {
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        navigator.serviceWorker.getRegistration().then(function (reg) {
+          if (reg && reg.getNotifications) {
+            return reg.getNotifications({ tag: 'rest-timer' }).then(function (ns) {
+              ns.forEach(function (n) { n.close(); });
+            });
+          }
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
 
   // ---- alarma: insiste hasta que te das por enterado ----
   // Un solo pitido se pierde fácil (música, móvil en el banco, pantalla apagada).
   // Al vencer el descanso la píldora se pone roja y parpadea, el pitido se repite
   // cada pocos segundos (con vibración si la app está visible) y, si al segundo
-  // aviso nadie responde, salta además una notificación del sistema. La píldora
-  // roja se queda hasta que toques la pantalla, aunque los pitidos ya hayan parado.
-  var alarm = { on: false, n: 0, next: 0, iv: null, msg: '' };
+  // aviso nadie responde, salta además una notificación del sistema; con la
+  // pantalla bloqueada se repite un par de veces más (NOTIFY_HIDDEN), porque en
+  // Android 17 es lo único que suena. La píldora roja se queda hasta que toques
+  // la pantalla, aunque los pitidos ya hayan parado.
+  // Los pitidos de Web Audio ya van programados desde el ✓; aquí se suman el
+  // <audio>, la vibración y la notificación, al mismo compás: base + k·ALARM_EVERY.
+  var alarm = { on: false, n: 0, base: 0, next: 0, iv: null, msg: '', told: false };
   var ALARM_EVERY = 4000, ALARM_MAX = 8;
+  var NOTIFY_HIDDEN = [3, 7];   // huecos con otra notificación si la pantalla está bloqueada
   var baseTitle = document.title;
-  function startAlarm(msg) {
+  // base = hora (ms) del primer pitido de la alarma
+  function startAlarm(msg, base) {
     alarm.on = true;
     alarm.n = 1;
     alarm.msg = msg;
-    alarm.next = Date.now() + ALARM_EVERY;
+    alarm.base = base;
+    alarm.next = base + ALARM_EVERY;
+    alarm.told = false;
     clearInterval(alarm.iv);
     alarm.iv = setInterval(alarmPoll, 500);
     wkrStart();
@@ -1579,12 +1711,19 @@
     grabWakeLock();
   }
   function alarmPoll() {
-    if (!alarm.on || Date.now() < alarm.next) return;
-    alarm.next = Date.now() + ALARM_EVERY;
-    alarm.n++;
-    if (alarm.n > ALARM_MAX) { silenceAlarm(); return; }
-    soundNow();
-    if (alarm.n === 2) notify(alarm.msg);
+    if (!alarm.on) return;
+    checkDrift();
+    var now = Date.now();
+    if (now < alarm.next) return;
+    // Si el JavaScript estuvo parado no se recuperan los pitidos perdidos:
+    // suena el del hueco en el que estamos y se sigue al compás
+    var k = Math.floor((now - alarm.base) / ALARM_EVERY);
+    if (k >= ALARM_MAX) { silenceAlarm(); return; }
+    alarm.n = k + 1;
+    alarm.next = alarm.base + (k + 1) * ALARM_EVERY;
+    soundNow(audioInSync() && scheduledAt(alarm.base + k * ALARM_EVERY));
+    if (!alarm.told) { alarm.told = true; notify(alarm.msg); }
+    else if (document.hidden && NOTIFY_HIDDEN.indexOf(k) > -1) notify(alarm.msg);
     document.title = (alarm.n % 2 ? '🔔 ' : '⏰ ') + alarm.msg;
   }
   // Para los pitidos pero deja la píldora roja a la vista
@@ -1593,6 +1732,7 @@
     alarm.iv = null;
     alarm.on = false;
     document.title = baseTitle;
+    if (!rest.active) { cancelScheduled(); keepAliveOff(); dropTabLock(); }
     wkrStop();
   }
   // Enterado: todo fuera
@@ -1602,6 +1742,7 @@
     pill.classList.remove('alarm');
     document.body.classList.remove('alarm');
     if (was && !rest.active) { pill.classList.remove('show'); dropWakeLock(); }
+    if (was) closeNotif();
   }
 
   function startRest(sec, q) {
@@ -1620,12 +1761,12 @@
     clearInterval(rest.iv);
     rest.iv = setInterval(tickRest, 250);
     wkrStart();
-    scheduleBeep();
+    scheduleAudio();
     pill.classList.add('show');
     tickRest();
   }
 
-  // keepBeep = dejar sonar el pitido pre-programado (venció a su hora en el reloj de audio)
+  // keepBeep = sigue la alarma: no tocar lo programado, el hilo de fondo ni el lock
   function stopRest(keepBeep) {
     clearInterval(rest.iv);
     rest.iv = null;
@@ -1634,51 +1775,49 @@
     rest.qi = 0;
     rest.seg = null;
     wkrStop();
-    if (!keepBeep) cancelScheduled();
+    if (!keepBeep) { cancelScheduled(); keepAliveOff(); dropTabLock(); }
     pill.classList.remove('show');
     pill.classList.remove('work');
     dropWakeLock();
-    dropTabLock();
   }
 
   // Encadena el siguiente bloque de la secuencia de intervalos sobre la hora
   // prevista del anterior (sin deriva). Si la app estuvo congelada varios
-  // bloques, los salta hasta llegar al que corresponde ahora.
+  // bloques, los salta hasta llegar al que corresponde ahora. Sus pitidos ya
+  // van programados desde el principio.
   function advanceSeg() {
     while (rest.q && rest.qi < rest.q.length - 1) {
       rest.qi++;
       rest.seg = rest.q[rest.qi];
       rest.end += rest.seg.sec * 1000;
-      if (rest.end > Date.now()) {
-        scheduleBeep();
-        return true;
-      }
+      if (rest.end > Date.now()) return true;
     }
     return false;
   }
 
   function tickRest() {
     if (!rest.active) return;
+    checkDrift();
     var left = Math.ceil((rest.end - Date.now()) / 1000);
     if (left <= 0) {
+      var due = rest.end;
       var msg = rest.seg ? rest.seg.msg : '¡Descanso terminado — siguiente serie!';
-      // ¿Está sonando ahora mismo (o acaba de sonar) el pitido pre-programado?
-      // Solo entonces no se dobla por Web Audio. Si el reloj de audio se paró
-      // (app en segundo plano) o se perdió por un cambio de salida (auriculares),
-      // se cancela y se pita ya.
-      var playingNow = false;
-      try {
-        playingNow = schedPlayed || (sched.length > 0 && actx && actx.state === 'running' &&
-                     actx.currentTime >= schedAt - 0.5 && actx.currentTime <= schedAt + TONE_LEN + 0.5);
-      } catch (e) {}
-      if (playingNow) { sched = []; schedGen++; }
-      else cancelScheduled();
-      soundNow(playingNow);
+      // ¿Ha sonado (o está sonando) este pitido en el reloj de audio, a su hora?
+      // Si no (audio parado o desfasado), se tira lo programado, se pita ya y
+      // se reprograma lo que queda sobre la hora real.
+      var onTime = audioInSync() && scheduledAt(due);
+      if (!onTime) cancelScheduled();
+      soundNow(onTime);
       if (document.hidden) notify(msg, rest.seg ? 'Intervalos de cardio en marcha.' : null);
       toast(msg);
-      if (rest.seg && advanceSeg()) { tickRest(); return; }
+      if (rest.seg && advanceSeg()) {
+        if (!onTime) scheduleAudio();
+        tickRest();
+        return;
+      }
       stopRest(true);
-      startAlarm(msg);
+      startAlarm(msg, onTime ? due : Date.now());
+      if (!onTime) scheduleAudio();
       return;
     }
     var txt = fmtClock(left) + '  ·  parar';
@@ -1741,17 +1880,15 @@
   }
 
   // Al volver a la app: reactivar audio y pantalla; si el tiempo venció fuera,
-  // avisar ya; si sigue corriendo, reprogramar el pitido sobre la hora real
-  // (el reloj de audio se para mientras la app está oculta y el pitido
-  // programado habría quedado atrasado).
+  // avisar ya; si el reloj de audio se quedó atrás (se para si el sistema
+  // suspende el audio), reprogramar lo que queda sobre la hora real.
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState !== 'visible') return;
-    if (alarm.on) { ensureAudio(); soundNow(); grabWakeLock(); return; }
-    if (!rest.active) return;
+    if (!rest.active && !alarm.on) return;
     ensureAudio();
     grabWakeLock();
-    tickRest();
-    if (rest.active) { cancelScheduled(); scheduleBeep(); }
+    if (rest.active) tickRest();
+    if ((rest.active || alarm.on) && !audioInSync()) scheduleAudio();
   });
 
   // Cualquier toque en la pantalla con la alarma en marcha cuenta como "enterado"
@@ -1773,7 +1910,8 @@
     toast('Temporizador parado');
   });
 
-  // Botón de prueba (en la ayuda): comprueba volumen multimedia y permisos sin esperar un descanso
+  // Botón de prueba (si vuelve a haber uno con id testAlarmBtn): comprueba
+  // volumen multimedia y permisos sin esperar un descanso
   var testBtn = document.getElementById('testAlarmBtn');
   if (testBtn) {
     testBtn.addEventListener('click', function (ev) {
@@ -1781,8 +1919,9 @@
       ensureAudio();
       unlockAudioEl();
       askNotifPermission();
-      startAlarm('Prueba del aviso');
+      startAlarm('Prueba del aviso', Date.now());
       soundNow();
+      scheduleAudio();
     });
   }
 
