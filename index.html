@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="app-build" content="2026-10-22d">
+<meta name="app-build" content="2026-10-22e">
 <meta name="theme-color" content="#eef0f2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131519" media="(prefers-color-scheme: dark)">
 <title>Rutina 5 días — Registro</title>
@@ -755,7 +755,7 @@
         }).join(' · ') + '</span>'
       : '';
     chips.innerHTML =
-      '<span class="chip scheme">' + schemeTxt + '</span>' +
+      '<span class="chip scheme" data-scheme>' + schemeTxt + '</span>' +
       (ex.opt ? '<span class="chip opt">extra</span>' : '') +
       '<span class="chip" data-rir>' + ex.rir + '</span>' +
       pairChip +
@@ -780,6 +780,7 @@
     for (var i = 0; i < ex.sets; i++) {
       var n = document.createElement('span');
       n.className = 'n';
+      n.dataset.set = i;
       n.textContent = ex.top ? (i === 0 ? 'top' : (i + 1)) : (i + 1);
       grid.appendChild(n);
       grid.appendChild(mkInput(ex, i, 0));
@@ -1058,13 +1059,23 @@
       goalNote.hidden = !(tg && tg.n);
       goalNote.textContent = tg && tg.n ? '→ ' + tg.n : '';
     }
-    // valores en gris: kg del objetivo si lo hay, si no la última sesión; reps y RIR de la última sesión.
-    // Las series que esta semana no tocan (rampa) o son extra se ven atenuadas.
+    // Series de esta semana: si el objetivo fija menos (rampa), las demás filas no se
+    // muestran y el chip lo dice; las series extra del plan (optSets) se ven atenuadas.
+    var weekSets = (!ex.cardio && tg && tg.sets && tg.sets < ex.sets) ? tg.sets : 0;
+    var schemeEl = card.querySelector('[data-scheme]');
+    if (schemeEl && !ex.cardio) {
+      schemeEl.textContent = weekSets
+        ? weekSets + ' × ' + ex.rmin + '-' + ex.rmax + ' esta semana (luego ' + ex.sets + ')'
+        : ex.sets + ' × ' + ex.rmin + '-' + ex.rmax + (ex.per ? ' ' + ex.per : '');
+    }
+    card.querySelectorAll('.sets [data-set]').forEach(function (el) {
+      el.hidden = !!weekSets && +el.dataset.set >= weekSets;
+    });
+    // valores en gris: kg del objetivo si lo hay, si no la última sesión; reps y RIR de la última sesión
     var due = setsDue(ex, tg);
     card.querySelectorAll('input[data-field]').forEach(function (inp) {
       var si = +inp.dataset.set, f = +inp.dataset.field;
       inp.classList.toggle('xrow', !ex.cardio && si >= due);
-      if (!ex.cardio && tg && tg.sets && si >= tg.sets && f !== F_RIR) { inp.placeholder = ''; return; }
       var lastV = (entry && entry.s[si] != null && entry.s[si][f] != null) ? entry.s[si][f] : '';
       if (f === F_KG && find) {
         inp.placeholder = '';
