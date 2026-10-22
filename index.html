@@ -237,6 +237,11 @@
   }
   .tools .btn { font-size: 12px; padding: 9px 12px; }
   .tools input[type="file"] { display: none; }
+  .tools .photo-other { display: flex; gap: 8px; flex: 1 1 100%; }
+  .tools .photo-other input {
+    flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--field); color: var(--ink); font: inherit; font-size: 13px; padding: 8px 10px;
+  }
 
   details.guide {
     background: var(--surface); border: 1px solid var(--line);
@@ -307,6 +312,11 @@
     <input type="file" id="importFile" accept="application/json">
     <label class="btn" for="targetsFile">Importar pesos</label>
     <input type="file" id="targetsFile" accept="application/json">
+    <input type="file" id="photoFile" accept="image/*" multiple>
+    <div class="photo-other">
+      <input type="text" id="photoName" placeholder="Otra máquina (p. ej. abductora)" autocomplete="off">
+      <button class="btn" type="button" id="photoOtherBtn">📷 Foto</button>
+    </div>
   </div>
 
   <details class="guide sync" id="syncBox">
@@ -654,11 +664,13 @@
     var ivChip = ex.interval
       ? '<button type="button" class="chip-btn" data-interval="' + ex.id + '">' + ex.ivLabel + '</button>'
       : '';
+    var photoChip = ex.cardio ? '' : '<button type="button" class="chip-btn" data-photo="' + ex.id + '" aria-label="Subir foto de la máquina">📷</button>';
     chips.innerHTML =
       '<span class="chip scheme">' + schemeTxt + '</span>' +
       '<span class="chip">' + ex.rir + '</span>' +
       ivChip +
       restChip +
+      photoChip +
       (ex.note ? '<span class="chip">' + ex.note + '</span>' : '') +
       '<span class="chip goal" data-goal hidden></span>' +
       '<span class="chip up" data-up hidden>' + (ex.hint || '▲ Sube peso') + '</span>';
@@ -1307,6 +1319,67 @@
     toast('Token borrado: la app sigue en local');
   });
 
+  // ---- fotos de máquinas ----
+  // Se suben al repo de datos (carpeta fotos/) para que el entrenador las vea.
+  // Se reducen a 1600 px en JPEG: unos 300-500 KB por foto en vez de 3-5 MB.
+  var photoFile = document.getElementById('photoFile');
+  var photoFor = '';
+  function slug(s) {
+    return s.normalize('NFD').replace(/[^\x00-\x7f]/g, '').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'maquina';
+  }
+  function shrinkImage(file) {
+    return new Promise(function (ok, ko) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.naturalWidth * k);
+        c.height = Math.round(img.naturalHeight * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        ok(c.toDataURL('image/jpeg', 0.82).split(',')[1]);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); ko(new Error('imagen no válida')); };
+      img.src = url;
+    });
+  }
+  function uploadPhoto(file, name, i) {
+    return shrinkImage(file).then(function (b64) {
+      var stamp = new Date().toISOString().slice(0, 19).replace(/:/g, '');
+      var path = 'fotos/' + slug(name) + '-' + stamp + '-' + (i + 1) + '.jpg';
+      return fetch(ghUrl(path), { method: 'PUT', headers: ghHeaders(),
+        body: JSON.stringify({ message: 'foto ' + name, content: b64 }) });
+    }).then(function (r) {
+      if (!r.ok) throw new Error('GitHub ' + r.status);
+    });
+  }
+  function askPhoto(name) {
+    if (!syncReady()) { toast('Para subir fotos, configura antes la sincronización con GitHub'); return; }
+    photoFor = name;
+    photoFile.click();
+  }
+  photoFile.addEventListener('change', function () {
+    var files = Array.prototype.slice.call(photoFile.files);
+    photoFile.value = '';
+    if (!files.length) return;
+    var name = photoFor, done = 0;
+    toast('Subiendo ' + files.length + (files.length > 1 ? ' fotos…' : ' foto…'));
+    files.reduce(function (p, f, i) {
+      return p.then(function () { return uploadPhoto(f, name, i).then(function () { done++; }); });
+    }, Promise.resolve()).then(function () {
+      toast('📷 ' + done + (done > 1 ? ' fotos subidas' : ' foto subida') + ' · ' + name);
+    }).catch(function (e) {
+      toast('No se pudo subir (' + (e && e.message || 'sin red') + ')' + (done ? '; ' + done + ' sí se subieron' : ''));
+    });
+  });
+  document.getElementById('photoOtherBtn').addEventListener('click', function () {
+    var n = document.getElementById('photoName').value.trim();
+    if (!n) { toast('Escribe primero qué máquina es'); return; }
+    askPhoto(n);
+  });
+
   function refreshWeekNote() {
     var el = document.getElementById('weekNote');
     if (!el) return;
@@ -1933,6 +2006,8 @@
       if (ex) startIntervals(ex);
     } else if (btn.dataset.rest) {
       startRest(parseInt(btn.dataset.rest, 10));
+    } else if (btn.dataset.photo) {
+      askPhoto(btn.dataset.photo);
     }
   });
 
