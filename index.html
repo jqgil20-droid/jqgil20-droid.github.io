@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="app-build" content="2026-10-22c">
 <meta name="theme-color" content="#eef0f2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131519" media="(prefers-color-scheme: dark)">
 <title>Rutina 5 días — Registro</title>
@@ -288,9 +289,9 @@
   #toast {
     position: fixed; left: 50%; bottom: 142px; transform: translateX(-50%) translateY(8px);
     background: var(--ink); color: var(--ground);
-    font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 16px;
     opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
-    white-space: nowrap; z-index: 30;
+    width: max-content; max-width: calc(100vw - 32px); white-space: normal; text-align: center; z-index: 30;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   @media (prefers-reduced-motion: reduce) {
@@ -368,17 +369,18 @@
     <summary>Cómo funciona (reglas de la rutina)</summary>
     <ul>
       <li><b>Pesos de la semana (🎯):</b> cada ejercicio lleva el peso que toca esta semana, marcado por el entrenador a partir de tu progreso. Aparece como chip y como valor gris en kg. Con la <b>sincronización con GitHub</b> configurada, el progreso se sube solo al guardar y los pesos nuevos se bajan solos al abrir la app. Sin ella, vale <b>Copia de seguridad</b> → se la mandas → <b>Importar pesos</b>.</li>
-      <li><b>Rellena kg, reps y RIR</b> de cada serie y toca el <b>✓</b> de esa fila: la serie queda en verde y arranca sola el descanso. En la <b>última serie</b> el ✓ no lanza descanso, salvo en las parejas (↔), donde sí, porque toca la serie del otro ejercicio. Los valores grises son el <b>objetivo de esa serie</b> marcado para la semana: si los dejas vacíos, el ✓ los copia, así que <b>escribe siempre las reps que hagas</b> si son otras. El RIR no se rellena solo. Tócalo otra vez para desmarcar. Al acabar el día pulsa <b>Guardar sesión</b>.</li>
-      <li><b>Parejas (↔) y extras:</b> en una pareja alternas una serie de cada ejercicio (A1 → B1 → A2 → B2…), con el descanso del temporizador entre uno y otro; cada músculo sigue descansando más de 2 min entre sus propias series. Lo marcado como <b>extra</b> se hace si vas bien de tiempo y fuerzas: antes que saltarte una sesión, quita extras. Tras dormir menos de 6 h o con agujetas fuertes, haz solo el núcleo a RIR 3.</li>
-      <li><b>Esfuerzo</b> (RIR = reps que te habrías podido hacer de más): compuestos a <b>RIR 2</b>, parando en la 1ª rep claramente lenta o si se rompe la técnica, aunque no llegues al objetivo, y <b>sin pasar del objetivo</b>. Aislamientos a RIR 1-2. Al <b>fallo técnico</b> (no sale otra rep completa y limpia) solo la última serie donde lo pone: laterales, pájaros y cruces. Nunca al fallo en pierna ni con mancuernas. Apunta como mínimo el RIR de la <b>1ª y la última serie</b>: si falta, la casilla se marca en naranja.</li>
-      <li><b>Progresión:</b> en las series anteriores a la última, para al llegar al objetivo. Cuando todas las series llegan al tope del rango, o la 1ª sale con RIR 3 o más, la semana siguiente el peso sube un 2,5-5 % (hay discos de 1,25) y vuelves al mínimo del rango. Si la 1ª serie se queda 2 reps o más por debajo con RIR 1 o menos, baja ~5 % para las demás. Sin RIR apuntado no se cambia el peso.</li>
-      <li><b>Serie top + descargas</b> (press de pecho y sentadilla): la top a RIR 2, nunca al fallo. Al confirmarla, la app propone las descargas al 90 %: haz reps hasta la 1ª rep lenta (suelen salir 8-10). Solo progresa la top: +2,5 kg cuando salgan 8 reps a RIR 2.</li>
-      <li><b>Rampa</b> (la 1ª vez de cada sesión nueva): lo nuevo va a 2 series «busca peso» a RIR 3, con descansos algo más largos (la app ya los pone) y nada al fallo. La 2ª vez, todo a RIR 2. Desde la 3ª, la pauta completa.</li>
+      <li><b>Rellena kg, reps y RIR</b> de cada serie y toca el <b>✓</b> de esa fila: la serie queda en verde y arranca sola el descanso. En la <b>última serie</b> el ✓ no lanza descanso, salvo en las parejas (↔) mientras al otro ejercicio le quede alguna serie. Los valores grises son el <b>objetivo de esa serie</b> marcado para la semana: si los dejas vacíos, el ✓ los copia, así que <b>escribe siempre los kg y las reps que hagas</b> si son otros. Sin kg, el ✓ no confirma la serie (en «busca peso» la casilla de kg sale vacía a propósito). El RIR no se rellena solo. Tócalo otra vez para desmarcar. Al acabar el día pulsa <b>Guardar sesión</b>.</li>
+      <li><b>Parejas (↔) y extras:</b> en una pareja alternas una serie de cada ejercicio (A1 → B1 → A2 → B2…), con el descanso del temporizador entre uno y otro; cada músculo sigue descansando más de 2 min entre sus propias series. Lo marcado como <b>extra</b> se hace si vas bien de tiempo y fuerzas: antes que saltarte una sesión, quita extras. Con agujetas de 4/10 o más en lo que toca, o tras dormir menos de 6 h, haz la <b>versión mínima</b> (viene en la nota de cada día) a RIR 3. Si una máquina de la pareja está ocupada, series normales con 90 s y una serie menos de cada ejercicio. Si te mareas o tienes náuseas, siéntate y termina en series normales.</li>
+      <li><b>Calentamiento:</b> series de aproximación solo en el primer ejercicio de cada patrón (vienen en su nota, p. ej. «aprox.: 50 %×8, 70 %×4…», en % del peso de trabajo). Sin estiramientos estáticos de más de 60 s antes de entrenar.</li>
+      <li><b>Esfuerzo</b> (RIR = reps que te habrías podido hacer de más): compuestos a <b>RIR 2</b>, parando en la 1ª rep claramente lenta o si se rompe la técnica, aunque no llegues al objetivo. En sentadilla, rumano, remo en T, hip thrust y prensa, <b>nunca pases del objetivo</b>; en el resto, en la última serie sigue hasta el RIR que marca el ejercicio aunque pases del objetivo, y escribe las reps que salgan. Aislamientos a RIR 1-2. Al <b>fallo técnico</b> (no sale otra rep completa y limpia) solo la última serie donde lo pone, desde la 3ª vez: laterales, pájaros y cruces. Nunca al fallo en pierna ni con mancuernas. Apunta como mínimo el RIR de la <b>1ª y la última serie</b>: si falta, la casilla se marca en naranja.</li>
+      <li><b>Progresión:</b> en las series anteriores a la última, para al llegar al objetivo. La semana siguiente el peso sube un 2,5-5 % (hay discos de 1,25) y vuelves al mínimo del rango si todas las series llegan al tope del rango, si la última supera el objetivo en 2 reps o más, o si la 1ª sale con RIR 3 o más. Si un básico llega al objetivo con RIR 1, se mantiene. Si la 1ª serie se queda 2 reps o más por debajo con RIR 1 o menos, baja ~5 % para las demás. Sin RIR apuntado no se cambia el peso.</li>
+      <li><b>Serie top + descargas</b> (press de pecho y sentadilla): la top a RIR 2, nunca al fallo. Al confirmarla, la app propone las descargas al 90 %: haz reps hasta la 1ª rep lenta; en el press puedes pasar del objetivo (la última, a RIR 1), en la sentadilla no. Solo progresa la top: +2,5 kg cuando salgan 8 reps a RIR 2.</li>
+      <li><b>Rampa</b> (la 1ª vez de cada sesión nueva): lo nuevo va a 2 series «busca peso» a RIR 3 (escribe los kg que uses), con descansos algo más largos (la app ya los pone) y nada al fallo. La 2ª vez, todo a RIR 2. Desde la 3ª, la pauta completa. Si las agujetas de un grupo duran más de 48 h, repite ese paso.</li>
       <li><b>Semana complicada:</b> la línea 📅 de arriba cuenta las sesiones hechas. Si pierdes un día, al siguiente haz la pendiente más prioritaria: Pierna A → Torso A → cardio → la B que más tiempo lleve sin hacerse. Nunca dos sesiones el mismo día y 48 h entre piernas. Si vuelves a una sesión tras 10 días o más, mismo peso o un 5 % menos y todo a RIR 3.</li>
       <li><b>Notas:</b> cada ejercicio tiene un campo de texto (asiento, agarre, molestias…). Se guarda con la sesión y lo verás junto a la última marca y en el historial. Puedes guardar una nota sin series (p. ej. «talón molesto, sin cardio»).</li>
       <li><b>Duración de la sesión:</b> al apuntar tu primera serie, la app fija el inicio ~7 min antes (calentamiento y aproximaciones); al pulsar <b>Guardar sesión</b> apunta los minutos totales. Si un día se te olvida guardar, el marcador caduca solo a las 4 h — no quedan sesiones colgadas ni duraciones absurdas.</li>
-      <li><b>Cardio (miércoles, cinta):</b> la línea <b>«Hoy toca»</b> de ese día dice qué sesión corresponde y a qué velocidad (la fija el entrenador con los pesos de la semana). Fase 1: escalones de correr/caminar (5×[4+2] → 4×[5,5+2] → 4×[6+2] → 2×[13+3]), como mucho +2 min de carrera por escalón y 1-2 semanas en cada uno, a ritmo de <b>frases completas</b> (si no puedes, baja 0,5 km/h). Después, ciclo de 4×4 tres semanas (RPE 8-9, ~170-180 ppm al final de cada ronda; la 1ª vez, 3 rondas) y zona 2 la cuarta. Corre con cuesta del 0-1 %. El botón <b>▶</b> guía la sesión entera con pitidos en cada cambio: globo verde = correr/fuerte, azul = andar; para pararlo hay que tocarlo dos veces. Apunta minutos y km (o velocidad) y, en la nota, las ppm del último bloque: si repites el mismo nivel máximo dos 4×4 seguidos, aparece <b>▲ Sube ritmo</b>. La <b>bici del viernes</b> es un 2º cardio opcional: con un solo día por semana el VO2max apenas mejora.</li>
-      <li><b>Pie (semáforo):</b> cada mañana puntúa de 0 a 10 el dolor del primer paso. <b>0-2</b> (o lo habitual): plan normal. <b>3-4</b>, o tarda más de 15 min en irse: esa semana sin correr y <b>sin cuesta</b> (bici o andar en llano) y la mitad de series de gemelo a RIR 3. <b>5 o más</b>, dolor en reposo o 2 semanas seguidas en 3-4: fisioterapeuta. Como mucho un estímulo nuevo para el pie cada 2 semanas. Corre con las plantillas.</li>
+      <li><b>Cardio (miércoles, cinta):</b> la línea <b>«Hoy toca»</b> de ese día dice qué sesión corresponde y a qué velocidad (la fija el entrenador con los pesos de la semana). Fase 1: escalones de correr/caminar (5×[4+2] → 4×[5,5+2] → 4×[6+2] → 2×[13+3]), como mucho +2 min de carrera por escalón y 1-2 semanas en cada uno, a ritmo de <b>frases completas</b> (si no puedes, baja 0,5 km/h). Después, ciclo de 4×4 tres semanas (RPE 8-9, ~170-180 ppm al final de cada ronda; la 1ª vez, 3 rondas) y zona 2 la cuarta. Corre con cuesta del 0-1 %. El botón <b>▶</b> guía la sesión entera con pitidos en cada cambio: globo verde = correr/fuerte, azul = andar; para pararlo hay que tocarlo dos veces. Apunta minutos y km (o velocidad) y, en la nota, las ppm del último bloque: si repites el mismo nivel máximo dos 4×4 seguidos, aparece <b>▲ Sube ritmo</b>; súbelo solo si la última ronda no pasó de ~175 ppm con RPE 8 o menos. La <b>bici del viernes</b> es un 2º cardio opcional: con un solo día por semana el VO2max apenas mejora. Todo lo que camines a diario (en llano, con las plantillas) suma para los 150 min semanales; si algún fin de semana puedes andar 30-60 min en llano fuera del gimnasio, mejor, pero solo con el pie en verde.</li>
+      <li><b>Pie (semáforo):</b> cada mañana puntúa de 0 a 10 el dolor del primer paso y apúntalo en la nota del primer ejercicio del día (p. ej. «pie 2»). <b>0-2</b> (o lo habitual): plan normal. <b>3-4</b>, o tarda más de 15 min en irse: esa semana sin correr y <b>sin cuesta</b> (bici o andar en llano) y la mitad de series de gemelo a RIR 3. <b>5 o más</b>, dolor en reposo o 2 semanas seguidas en 3-4: fisioterapeuta. Como mucho un estímulo nuevo para el pie cada 2 semanas. Corre con las plantillas.</li>
       <li><b>Rodilla (quiste de Baker):</b> pauta práctica, porque no hay estudios específicos: entrenar está bien si durante el ejercicio el dolor no pasa de 3/10 y al día siguiente no está peor; si no, menos profundidad o menos carga en sentadilla y prensa. Si la corva se hincha de golpe o aparecen dolor e hinchazón en la pantorrilla, ve al médico ese mismo día: una rotura del quiste se parece a un trombo y hay que descartarlo.</li>
       <li><b>Temporizador:</b> arranca solo con el ✓ de cada serie; el chip ⏱ del ejercicio sigue sirviendo para lanzarlo a mano. Al acabar, la píldora se pone <b>roja y parpadea</b>, pita y vibra varias veces y, si no respondes, manda una notificación: toca la pantalla para apagarla. El pitido usa el <b>volumen multimedia</b> del móvil (no el de llamadas). Para cortar un descanso a medias, toca la píldora ⏱ de abajo. Mientras corre, la pantalla se mantiene encendida sola. <b>Puedes bloquear el móvil</b>: el aviso suena igual. En Android, con Spotify puesto, el pitido se mezcla con la música y Spotify no se para; en iPhone, Spotify se pausa durante el descanso. <b>Acepta las notificaciones</b> cuando la app te lo pida: en Android 17 el sistema no deja sonar al navegador con el móvil bloqueado, y entonces el aviso llega como notificación, con su sonido. Si durante el descanso te vas a otra app (por ejemplo, a elegir canción), vuelve a esta antes de bloquear: si se queda detrás, el móvil puede congelar el navegador al cabo de un minuto. Y si el navegador congeló el aviso mientras estabas fuera, suena nada más volver.</li>
       <li><b>Descarga</b> solo cuando haga falta: si las reps caen con el mismo peso en 2 básicos durante 2 sesiones, si el RIR queda por debajo de lo previsto, si hay molestias o pocas ganas, o como tope tras 8-10 semanas completas seguidas. 5-7 días con las mismas sesiones, 40-50 % menos series, carga al 90-100 % y RIR 3-4. Una semana perdida cuenta como descarga.</li>
@@ -407,20 +409,20 @@
   // opt: ejercicio extra (lo primero que se quita si vas justo); optSets: las
   // últimas N series son extra. rest: un solo valor (el temporizador usa el mayor).
   var PLAN = [
-    { id: 'piernaA', name: 'Pierna A', tag: 'lunes', note: 'Día pesado. Núcleo: sentadilla → rumano → femoral ↔ extensión → gemelo. Extras si vas bien: 4ª de femoral, prensa y crunch (si vas justo, quita primero la prensa). Todo a RIR 1-2, nada al fallo; en los básicos para en la 1ª rep lenta y no pases del objetivo.',
+    { id: 'piernaA', name: 'Pierna A', tag: 'lunes', note: 'Día pesado. Núcleo: sentadilla → rumano → femoral ↔ extensión → gemelo. Extras si vas bien: 4ª de femoral, prensa y crunch (si vas justo, quita primero la prensa). Todo a RIR 1-2 y nada al fallo, salvo que el ejercicio marque otro RIR; en sentadilla, rumano y prensa para en la 1ª rep lenta y no pases del objetivo.',
       ex: [
-        { id: 'sentadilla-maquina', name: 'Sentadilla en máquina', sets: 4, rmin: 6, rmax: 8, rest: '3 min', rir: 'RIR 2', top: true, note: 'top + descargas al 90 % hasta la 1ª rep lenta · siempre el mismo tope, sin dolor en la corva' },
-        { id: 'rumano-multi', name: 'Peso muerto rumano en multipower', sets: 3, rmin: 6, rmax: 8, rest: '2 min', rir: 'RIR 2', note: 'para en la 1ª rep lenta o si se redondea la lumbar' },
+        { id: 'sentadilla-maquina', name: 'Sentadilla en máquina', sets: 4, rmin: 6, rmax: 8, rest: '3 min', rir: 'RIR 2', top: true, note: 'aprox.: 50 %×8, 70 %×4 y 85-90 %×1-2 · top + descargas al 90 % hasta la 1ª rep lenta, sin pasar del objetivo · mismo tope siempre, sin rebote, sin dolor en la corva' },
+        { id: 'rumano-multi', name: 'Peso muerto rumano en multipower', sets: 3, rmin: 6, rmax: 8, rest: '2 min', rir: 'RIR 2', note: 'aprox.: 50 %×6 y 75 %×3 · rodillas a 15-20°, columna neutra, sin tocar abajo · para en la 1ª rep lenta o si se redondea la lumbar' },
         { id: 'femoral-sentado-a', name: 'Curl femoral sentado', sets: 4, rmin: 8, rmax: 12, rest: '60 s', rir: 'RIR 1-2', pair: 'ext-cuadriceps-a', optSets: 1, note: 'la 4ª es extra y va sola · tronco inclinado adelante' },
-        { id: 'ext-cuadriceps-a', name: 'Extensión de cuádriceps', sets: 3, rmin: 10, rmax: 15, rest: '60 s', rir: 'RIR 1-2', pair: 'femoral-sentado-a', note: 'nueva el lunes: el recto femoral solo crece de verdad con ella' },
-        { id: 'gemelo-pie', name: 'Gemelo de pie', sets: 4, rmin: 8, rmax: 12, rest: '75 s', rir: 'RIR 1-2', note: 'pausa 1-2 s abajo, sin rebote' },
-        { id: 'prensa', name: 'Prensa', sets: 2, rmin: 8, rmax: 12, rest: '2 min', rir: 'RIR 2-3', opt: true, note: '≈90° de rodilla, sacro apoyado' },
+        { id: 'ext-cuadriceps-a', name: 'Extensión de cuádriceps', sets: 3, rmin: 10, rmax: 15, rest: '60 s', rir: 'RIR 1-2', pair: 'femoral-sentado-a', note: 'nueva el lunes (recto femoral) · si molesta la rodilla, no extiendas los últimos 30°' },
+        { id: 'gemelo-pie', name: 'Gemelo de pie', sets: 4, rmin: 8, rmax: 12, rest: '75 s', rir: 'RIR 1-2', note: 'pausa 1-2 s abajo, sin rebote · si la lumbar va cargada, hazlo en la prensa' },
+        { id: 'prensa', name: 'Prensa', sets: 2, rmin: 8, rmax: 12, rest: '2 min', rir: 'RIR 2-3', opt: true, note: '≈90° de rodilla, sacro apoyado, sin bloquear las rodillas' },
         { id: 'abs-a', name: 'Crunch en polea', sets: 3, rmin: 10, rmax: 15, rest: '60 s', rir: 'RIR 1-2', opt: true, note: 'siempre después de la prensa' }
       ] },
-    { id: 'torsoA', name: 'Torso A', tag: 'martes', note: 'Día pesado. Top de press sola; después descargas ↔ remo en T, press de hombro ↔ dominadas, laterales ↔ curl y pájaros ↔ tríceps. Si vas justo, recorta: 3ª de hombro y dominadas → 4ª de remo → 3ª de curl y tríceps. Laterales y pájaros no se recortan.',
+    { id: 'torsoA', name: 'Torso A', tag: 'martes', note: 'Día pesado. Top de press sola; después descargas ↔ remo en T, press de hombro ↔ dominadas, laterales ↔ curl y pájaros ↔ tríceps. Si vas justo, recorta: 3ª de hombro y dominadas → 4ª de remo → 3ª de curl y tríceps. Laterales y pájaros no se recortan. Mínima (~40 min): press + remo, laterales ↔ curl y pájaros ↔ tríceps.',
       ex: [
-        { id: 'press-maquina', name: 'Press de pecho en máquina', sets: 4, rmin: 6, rmax: 8, rest: '90 s', rir: 'RIR 2', top: true, pair: 'remo-t', note: 'top sola · descargas al 90 % hasta la 1ª rep lenta (la última, RIR 1)' },
-        { id: 'remo-t', name: 'Remo en T (con apoyo de pecho)', sets: 4, rmin: 6, rmax: 10, rest: '90 s', rir: 'RIR 2', pair: 'press-maquina', note: 'top → remo → descarga → remo… · kg = discos' },
+        { id: 'press-maquina', name: 'Press de pecho en máquina', sets: 4, rmin: 6, rmax: 8, rest: '90 s', rir: 'RIR 2', top: true, pair: 'remo-t', note: 'aprox.: 50 %×8, 70 %×4 y 85-90 %×1-2 · top sola · descargas al 90 % hasta la 1ª rep lenta (la última, RIR 1)' },
+        { id: 'remo-t', name: 'Remo en T (con apoyo de pecho)', sets: 4, rmin: 6, rmax: 10, rest: '90 s', rir: 'RIR 2', pair: 'press-maquina', note: 'aprox.: 60 %×6 · top → remo → descarga → remo… · no pases del objetivo · kg = discos' },
         { id: 'press-militar', name: 'Press de hombro en máquina sentado', sets: 3, rmin: 6, rmax: 8, rest: '90 s', rir: 'RIR 2', pair: 'dominadas-lastre' },
         { id: 'dominadas-lastre', name: 'Dominadas asistidas en máquina', sets: 3, rmin: 6, rmax: 8, rest: '90 s', rir: 'RIR 2', pair: 'press-militar', note: 'kg = contrapeso', hint: '▲ Quita ayuda' },
         { id: 'laterales-a', name: 'Elevaciones laterales', sets: 4, rmin: 12, rmax: 20, rest: '45 s', rir: 'RIR 1-2 · última al fallo técnico', pair: 'curl-barra', note: 'la 4ª va sola' },
@@ -431,22 +433,22 @@
     { id: 'cardio', name: 'Cardio', tag: 'miércoles', note: 'Cinta. Fase 1: correr/caminar, como mucho +2 min de carrera por escalón y 1-2 semanas en cada uno. Después: 4×4 tres semanas de cada cuatro y zona 2 la cuarta. Ritmo de frases completas. Con el talón molesto: sin correr y sin cuesta (bici o andar en llano).',
       ex: [
         { id: 'cinta-progresion', name: 'Correr/caminar — progresión (fase 1)', sets: 1, rmin: 30, rmax: 40, rest: '', rir: 'Frases completas', cardio: true, interval: true, ivLabel: '▶ Guiar sesión', note: '5×[4+2] → 4×[5,5+2] → 4×[6+2] → 2×[13+3] · cuesta 0-1 % · apunta las ppm del último bloque' },
-        { id: 'cinta-4x4', name: 'Intervalos 4×4 corriendo (cuesta 0-1 %)', sets: 4, rmin: 4, rmax: 4, rest: '3 min', rir: 'RPE 8-9 · ~170-180 ppm al final', cardio: true, interval: true, ivLabel: '▶ Rondas (tras calentar 10 min)', pace: true, hint: '▲ Sube ritmo (+0,5 km/h)', note: 'calienta 5 min andando + 5 de trote · 3 min andando suave entre rondas · la 1ª semana, 3 rondas' },
+        { id: 'cinta-4x4', name: 'Intervalos 4×4 corriendo (cuesta 0-1 %)', sets: 4, rmin: 4, rmax: 4, rest: '3 min', rir: 'RPE 8-9 · ~170-180 ppm al final', cardio: true, interval: true, ivLabel: '▶ Rondas (tras calentar 10 min)', pace: true, hint: '▲ Sube ritmo (+0,5 km/h) si la última ronda no pasó de ~175 ppm', note: 'calienta 5 min andando + 5 de trote · 3 min andando suave entre rondas · la 1ª vez, 3 rondas · apunta las ppm de la última ronda' },
         { id: 'cinta-z2', name: 'Zona 2 — andar rápido en llano o bici (cada 4ª semana)', sets: 1, rmin: 40, rmax: 45, rest: '', rir: 'Frases completas', cardio: true, note: 'cuesta ≤5 % solo sin molestias de talón' }
       ] },
-    { id: 'piernaB', name: 'Pierna B', tag: 'jueves', note: 'Volumen, corta. Prensa → femoral ↔ extensión → hip thrust ↔ gemelo → abductor ↔ crunch. Mínima: prensa, femoral ↔ extensión y gemelo. Todo a RIR 1-2, nada al fallo. Si ayer hiciste intervalos, gemelo a RIR 2-3 y sin pausa.',
+    { id: 'piernaB', name: 'Pierna B', tag: 'jueves', note: 'Volumen, corta. Prensa → femoral ↔ extensión → hip thrust ↔ gemelo → abductor ↔ crunch. Mínima (~36 min): prensa, femoral ↔ extensión y gemelo. Todo a RIR 1-2 y nada al fallo, salvo que el ejercicio marque otro RIR. Si ayer hiciste intervalos, gemelo a RIR 2-3 y sin pausa.',
       ex: [
-        { id: 'prensa-b', name: 'Prensa', sets: 3, rmin: 10, rmax: 14, rest: '2 min', rir: 'RIR 2', note: '≈90° de rodilla, sacro apoyado · para en la 1ª rep lenta' },
+        { id: 'prensa-b', name: 'Prensa', sets: 3, rmin: 10, rmax: 14, rest: '2 min', rir: 'RIR 2', note: 'aprox.: 50 %×8 y 75 %×4 · ≈90° de rodilla, sacro apoyado, sin bloquear las rodillas · para en la 1ª rep lenta' },
         { id: 'femoral-sentado-b', name: 'Curl femoral sentado', sets: 3, rmin: 10, rmax: 15, rest: '60 s', rir: 'RIR 1-2', pair: 'ext-cuadriceps', note: 'tronco inclinado adelante' },
         { id: 'ext-cuadriceps', name: 'Extensión de cuádriceps', sets: 3, rmin: 12, rmax: 20, rest: '60 s', rir: 'RIR 1-2', pair: 'femoral-sentado-b', note: 'si molesta la rodilla, no extiendas los últimos 30°' },
-        { id: 'hip-thrust', name: 'Hip thrust en máquina', sets: 3, rmin: 8, rmax: 12, rest: '60 s', rir: 'RIR 2', pair: 'gemelo-pie-b', opt: true, note: 'pausa 1 s arriba, sin arquear la lumbar' },
+        { id: 'hip-thrust', name: 'Hip thrust en máquina', sets: 3, rmin: 8, rmax: 12, rest: '60 s', rir: 'RIR 2', pair: 'gemelo-pie-b', opt: true, note: 'pausa 1 s arriba, sin arquear la lumbar · no pases del objetivo' },
         { id: 'gemelo-pie-b', name: 'Gemelo de pie', sets: 3, rmin: 12, rmax: 15, rest: '60 s', rir: 'RIR 1-2', pair: 'hip-thrust', note: 'sustituye al sentado · pausa 1-2 s abajo' },
         { id: 'abductor', name: 'Abductor en máquina', sets: 3, rmin: 12, rmax: 20, rest: '45 s', rir: 'RIR 1-2', pair: 'crunch-declinado', opt: true, note: 'vuelta controlada hasta cerrar del todo' },
         { id: 'crunch-declinado', name: 'Crunch declinado con disco', sets: 3, rmin: 10, rmax: 15, rest: '45 s', rir: 'RIR 1-2', pair: 'abductor', opt: true, note: 'sin banco declinado: en el suelo, disco al pecho' }
       ] },
-    { id: 'torsoB', name: 'Torso B', tag: 'viernes', note: 'Volumen por parejas: inclinado ↔ jalón → remo ↔ cruces → trío laterales → curl inclinado → tríceps. Si vas justo: 4ª de inclinado → 3ª de remo y cruces → 3ª de curl y tríceps. Bici al final si te da tiempo.',
+    { id: 'torsoB', name: 'Torso B', tag: 'viernes', note: 'Volumen por parejas: inclinado ↔ jalón → remo ↔ cruces → trío laterales → curl inclinado → tríceps. Si vas justo: 4ª de inclinado → 3ª de remo y cruces → 3ª de curl y tríceps. Mínima (~35 min): inclinado ↔ jalón y el trío. Bici al final si te da tiempo.',
       ex: [
-        { id: 'inclinado-maquina', name: 'Press inclinado en máquina', sets: 4, rmin: 8, rmax: 12, rest: '90 s', rir: 'RIR 2 (la última, RIR 1)', pair: 'jalon', note: 'la 4ª va sola · respaldo a 30-45°' },
+        { id: 'inclinado-maquina', name: 'Press inclinado en máquina', sets: 4, rmin: 8, rmax: 12, rest: '90 s', rir: 'RIR 2 (la última, RIR 1)', pair: 'jalon', note: 'aprox.: 50 %×8 y 75 %×4 · la 4ª va sola · respaldo a 30-45°' },
         { id: 'jalon', name: 'Jalón al pecho', sets: 3, rmin: 10, rmax: 12, rest: '90 s', rir: 'RIR 2', pair: 'inclinado-maquina', note: 'agarre 1-1,5 veces el ancho de hombros' },
         { id: 'remo-polea', name: 'Remo en polea sentado', sets: 3, rmin: 10, rmax: 14, rest: '75 s', rir: 'RIR 1-2', pair: 'cruces-polea' },
         { id: 'cruces-polea', name: 'Cruces en polea', sets: 3, rmin: 12, rmax: 20, rest: '75 s', rir: 'RIR 1-2 · última al fallo técnico', pair: 'remo-polea' },
@@ -468,40 +470,42 @@
   // rest: descanso de esta semana si cambia (p. ej. más largo en la rampa) }.
   var TARGETS_BUILTIN = {
     v: 2, week: '2026-10-22', label: 'Semana 22-26 oct · rutina nueva (rampa de entrada)',
-    note: 'Rutina nueva tras la revisión de evidencia. ↔ = pareja: alterna una serie de cada ejercicio, con el descanso del temporizador entre uno y otro. «extra» = solo si vas bien de tiempo y fuerzas. Compuestos a RIR 2: para en la 1ª rep claramente lenta o si se rompe la técnica, y no pases del objetivo; aislamientos a RIR 1-2. Rampa: la 1ª vez de cada sesión nueva, lo nuevo va a 2 series «busca peso» a RIR 3, con descansos algo más largos y nada al fallo. Apunta siempre el RIR de la 1ª y la última serie.',
+    note: 'Rutina nueva tras la revisión de evidencia. ↔ = pareja: alterna una serie de cada ejercicio, con el descanso del temporizador entre uno y otro. «extra» = solo si vas bien de tiempo y fuerzas. Compuestos a RIR 2: para en la 1ª rep claramente lenta o si se rompe la técnica; en sentadilla, rumano, remo en T, hip thrust y prensa, no pases del objetivo. Aislamientos a RIR 1-2. Rampa: la 1ª vez de cada sesión nueva, lo nuevo va a 2 series «busca peso» a RIR 3 (escribe los kg que uses), con descansos algo más largos y nada al fallo. El viernes, Torso B vuelve tras 14 días: todo a RIR 3. Apunta siempre el RIR de la 1ª y la última serie.',
     // cardio: escalón de fase 1 fijado (1-4), o '4x4' / 'z2'; velocidades en km/h
     cardio: { week: 1, run: 7.5, walk: 5.5 },
+    // Por ejercicio, además: rir / tip = RIR y nota de esta semana (sustituyen a los
+    // del plan), find = «busca peso» (el kg no se copia solo: hay que escribirlo).
     ex: {
-      'sentadilla-maquina': { kg: 45, back: 40, reps: [8, 8, 8, 8], n: 'top 45 a RIR 2 (el 19/10, 7 a RIR 3): busca 8. Descargas a 40 hasta la 1ª rep lenta (suelen salir 8-10). Con 8 a RIR 2 → 47,5' },
-      'rumano-multi': { kg: 110, reps: [8, 8, 7], n: 'el 19/10, 9-8-7 con la última a RIR 0: ahora RIR 2, para en la 1ª rep lenta y no pases del objetivo' },
+      'sentadilla-maquina': { kg: 45, back: 40, reps: [8, 7, 7, 7], n: 'top 45 a RIR 2 (el 19/10, 7 a RIR 3): busca 8. Descargas a 40: el 19/10 salieron 6-6-6 a RIR 3-2-1; busca 7 y para antes si llega la 1ª rep lenta (no pases de 7). Con la top en 8 a RIR 2 → 47,5' },
+      'rumano-multi': { kg: 110, reps: [8, 7, 6], n: 'el 19/10, 9-8-7 a RIR 1-1-0 con 3 min; ahora 2 min y RIR 2: 8-7-6. Para en la 1ª rep lenta o si se redondea la lumbar, y no pases del objetivo' },
       'femoral-sentado-a': { kg: 65, reps: [9, 9, 9, 9], rest: '75 s', n: '1ª vez en pareja con la extensión: −5 % (65) · la 4ª es extra' },
-      'ext-cuadriceps-a': { kg: null, reps: [12, 12], sets: 2, rest: '75 s', n: 'nueva el lunes: 2 series «busca peso» a RIR 3 (referencia: la del jueves)' },
-      'gemelo-pie': { kg: 90, reps: [9, 9, 8, 8], n: 'rango nuevo 8-12 · la 1ª vez sin pausa; desde la 2ª, 1-2 s abajo' },
-      'prensa': { kg: 125, reps: [9, 9], n: 'extra: 2 series a RIR 2-3 (el 19/10, 130×9-8-8 con la última al fallo)' },
-      'abs-a': { kg: 31.5, reps: [12, 12, 12], n: 'extra · rango nuevo 10-15' },
-      'press-maquina': { kg: 72.5, back: 65, reps: [7, 8, 8, 8], rest: '2 min', n: 'top 72,5 a RIR 2; descargas a 65 alternadas con el remo, hasta la 1ª rep lenta. 1ª vez: 2 min entre ejercicios' },
+      'ext-cuadriceps-a': { kg: null, reps: [12, 12], sets: 2, rest: '75 s', find: true, rir: 'RIR 3 · busca peso', n: 'nueva el lunes: 2 series «busca peso» a RIR 3 (referencia: la del jueves)' },
+      'gemelo-pie': { kg: 90, reps: [9, 9, 8, 8], tip: 'esta vez sin pausa; desde la próxima, 1-2 s abajo · si la lumbar va cargada, en la prensa', n: 'rango nuevo 8-12' },
+      'prensa': { kg: 120, reps: [9, 9], n: 'extra: 2 series a RIR 2-3 (el 19/10, 130×9-8-8 con la última al fallo, y ahora va después de la extensión)' },
+      'abs-a': { kg: 31.5, reps: [11, 11, 10], n: 'extra · rango nuevo 10-15 (el 19/10, 11-11-11 a RIR 1-1-0)' },
+      'press-maquina': { kg: 72.5, back: 65, reps: [7, 8, 8, 8], rest: '2 min', n: 'top 72,5 a RIR 2; descargas a 65 alternadas con el remo, hasta la 1ª rep lenta (la última, RIR 1). 1ª vez: 2 min entre ejercicios' },
       'remo-t': { kg: 35, reps: [8, 8, 8, 8], rest: '2 min', n: 'alternado con el press · el 20/10, 4×8 a RIR 3-1' },
       'press-militar': { kg: 52.5, reps: [8, 8, 8], rest: '2 min', n: 'en pareja con las dominadas · 3×8 a RIR 2 otra vez → 55' },
-      'dominadas-lastre': { kg: 15, reps: [8, 8, 8], rest: '2 min', n: 'en pareja con el press de hombro · 3×8 → 12,5 de ayuda' },
-      'laterales-a': { kg: 32.5, reps: [13, 13, 12, 12], rest: '60 s', n: 'nuevo el martes, en pareja con el curl: −5 % (32,5) · sin fallo hasta la 3ª vez' },
+      'dominadas-lastre': { kg: 15, reps: [8, 8, 7], rest: '2 min', n: 'en pareja con el press de hombro · el 20/10, 8-8-7: si en pareja pierdes más de 1 rep, se separan' },
+      'laterales-a': { kg: 35, reps: [13, 13, 12, 12], rest: '60 s', rir: 'RIR 1-2 · sin fallo (rampa)', n: 'nuevo el martes, en pareja con el curl · se ajusta con lo que salga el viernes' },
       'curl-barra': { kg: 31.5, reps: [11, 11, 10], rest: '60 s', n: 'en pareja con las laterales · rango nuevo 8-12' },
-      'pajaros': { kg: null, reps: [12, 12], sets: 2, rest: '75 s', n: 'nuevo: 2 series «busca peso» a RIR 3' },
-      'press-frances': { kg: 24, reps: [11, 10, 10], rest: '75 s', n: 'en pareja con los pájaros · el 20/10, 10-10-9' },
+      'pajaros': { kg: null, reps: [12, 12], sets: 2, rest: '75 s', find: true, rir: 'RIR 3 · busca peso', n: 'nuevo: 2 series «busca peso» a RIR 3' },
+      'press-frances': { kg: 24, reps: [11, 10, 9], rest: '75 s', n: 'en pareja con los pájaros (la 3ª va sola, con 75 s) · el 20/10, 10-10-9 con la última a RIR 0' },
       'cinta-progresion': { kg: 7.5, reps: '', n: 'repite 5×[4+2] a 7,5 (andar 5,5), cuesta 1 %. Ritmo de frases completas: si no puedes o el último bloque pasa de ~155 ppm, baja a 7. Si sale bien y el pie está en verde, la semana siguiente 4×[5,5+2]' },
-      'prensa-b': { kg: 115, reps: [12, 12], sets: 2, n: '1ª vez (rampa): 2 series a RIR 3, busca peso. Referencia ~115 (el lunes, 130×9)' },
-      'femoral-sentado-b': { kg: 57.5, reps: [12, 12], sets: 2, rest: '75 s', n: '1ª vez: 2 series a RIR 3 (el lunes 67,5×9; aquí más reps)' },
-      'ext-cuadriceps': { kg: 60, reps: [14, 14], sets: 2, rest: '75 s', n: '1ª vez desde agosto (70×13): 2 series a RIR 3, busca peso' },
-      'hip-thrust': { kg: 100, reps: [10, 10], sets: 2, rest: '75 s', n: 'extra · 1ª vez desde agosto (100×12): 2 series a RIR 3' },
-      'gemelo-pie-b': { kg: 75, reps: [12, 12], sets: 2, rest: '75 s', n: '1ª vez: 2 series a RIR 3 y sin pausa (el lunes, 90×9-8)' },
-      'abductor': { kg: null, reps: [12, 12], sets: 2, rest: '60 s', n: 'extra · nuevo: 2 series «busca peso» a RIR 3' },
-      'crunch-declinado': { kg: 10, reps: [12, 12], sets: 2, rest: '60 s', n: 'extra · nuevo: disco de 10 al pecho, 2 series a RIR 3' },
-      'inclinado-maquina': { kg: null, reps: [10, 10], sets: 2, rest: '2 min', n: '1ª vez en máquina: 2 series «busca peso» a RIR 3 (10 reps)' },
-      'jalon': { kg: 67.5, reps: [11, 11, 10], rest: '2 min', n: '1ª vez en pareja con el inclinado: −5 % (67,5), RIR 2-3' },
-      'remo-polea': { kg: 54, reps: [11, 10, 10], rest: '90 s', n: 'en pareja con los cruces: las 3 a 54, sin fallo' },
-      'cruces-polea': { kg: 7.5, reps: [13, 13, 12], rest: '90 s', n: 'en pareja con el remo · sin fallo hasta la 3ª vez' },
-      'laterales': { kg: 32.5, reps: [13, 13, 13, 12], rest: '60 s', n: 'trío: −5 % (32,5) la 1ª vez · sin fallo hasta la 3ª vez' },
-      'curl-inclinado': { kg: 10, reps: [12, 12, 12], rest: '60 s', n: 'trío · rango nuevo 8-15: con 10 kg sube reps hasta 15 antes de pasar a 12' },
-      'triceps-mancuerna-cabeza': { kg: null, reps: [12, 12], sets: 2, rest: '75 s', n: 'nuevo (sustituye al pushdown): 2 series «busca peso» a RIR 3, a dos manos' },
+      'prensa-b': { kg: 115, reps: [12, 12], sets: 2, find: true, rir: 'RIR 3 · busca peso', n: '1ª vez (rampa): aprox. ~60×8 y ~85×4, y después 2 series a RIR 3 buscando peso (referencia ~115; el lunes, 130×9). Escribe los kg que uses' },
+      'femoral-sentado-b': { kg: 57.5, reps: [12, 12], sets: 2, rest: '75 s', rir: 'RIR 3', n: '1ª vez: 2 series a RIR 3 (el lunes 67,5×9; aquí más reps)' },
+      'ext-cuadriceps': { kg: 60, reps: [14, 14], sets: 2, rest: '75 s', find: true, rir: 'RIR 3 · busca peso', n: '1ª vez desde agosto (70×13): 2 series a RIR 3, busca peso (referencia ~60)' },
+      'hip-thrust': { kg: 100, reps: [10, 10], sets: 2, rest: '75 s', rir: 'RIR 3', n: 'extra · 1ª vez desde agosto (100×12): 2 series a RIR 3' },
+      'gemelo-pie-b': { kg: 75, reps: [12, 12], sets: 2, rest: '75 s', rir: 'RIR 3', tip: 'sustituye al sentado · esta vez sin pausa', n: '1ª vez: 2 series a RIR 3 (el lunes, 90×9-8)' },
+      'abductor': { kg: null, reps: [12, 12], sets: 2, rest: '60 s', find: true, rir: 'RIR 3 · busca peso', n: 'extra · nuevo: 2 series «busca peso» a RIR 3' },
+      'crunch-declinado': { kg: 10, reps: [12, 12], sets: 2, rest: '60 s', rir: 'RIR 3', n: 'extra · nuevo: disco de 10 al pecho, 2 series a RIR 3' },
+      'inclinado-maquina': { kg: null, reps: [10, 10], sets: 2, rest: '2 min', find: true, rir: 'RIR 3 · busca peso', tip: 'aprox.: 50 %×8 y 75 %×4 · respaldo a 30-45°', n: '1ª vez en máquina: 2 series «busca peso» a RIR 3 (10 reps)' },
+      'jalon': { kg: 67.5, reps: [11, 11, 10], rest: '2 min', rir: 'RIR 3', n: '1ª vez en pareja y tras 14 días: −5 % (67,5) a RIR 3' },
+      'remo-polea': { kg: 54, reps: [11, 10, 10], rest: '90 s', rir: 'RIR 3', n: 'en pareja con los cruces y tras 14 días: las 3 a 54 a RIR 3' },
+      'cruces-polea': { kg: 7.5, reps: [14, 14, 13], rest: '90 s', rir: 'RIR 3 · sin fallo', n: 'en pareja con el remo · sin fallo hasta la 3ª vez' },
+      'laterales': { kg: 35, reps: [14, 13, 13, 12], rest: '60 s', rir: 'RIR 3 · sin fallo', n: 'trío, peso fijo de 35 (antes, pirámide 42,5→32,5) · sin fallo hasta la 3ª vez' },
+      'curl-inclinado': { kg: 10, reps: [12, 12, 12], rest: '60 s', rir: 'RIR 3', n: 'trío · rango nuevo 8-15: con 10 kg sube reps hasta 15 antes de pasar a 12' },
+      'triceps-mancuerna-cabeza': { kg: null, reps: [12, 12], sets: 2, rest: '75 s', find: true, rir: 'RIR 3 · busca peso', n: 'nuevo (sustituye al pushdown): 2 series «busca peso» a RIR 3, a dos manos' },
       'bici-extra': { kg: null, reps: '', n: 'opcional: 15-20 min si te queda tiempo, a un nivel que te deje hablar en frases cortas' }
     }
   };
@@ -578,22 +582,39 @@
   function setsDue(ex, tg) {
     return (tg && tg.sets) || (ex.sets - (ex.optSets || 0));
   }
-  // Descanso vigente: el de los pesos de la semana si lo fijan, si no el del plan
+  // Descanso vigente: el de los pesos de la semana si lo fijan (texto como
+  // '75 s' o '2 min'; un número se toma como segundos), si no el del plan
   function exRest(ex) {
-    var tg = targetOf(ex.id);
-    return (tg && tg.rest) || ex.rest;
+    var tg = targetOf(ex.id), r = tg && tg.rest;
+    if (typeof r === 'number' && r > 0) return r + ' s';
+    return (typeof r === 'string' && /\d/.test(r)) ? r : ex.rest;
   }
 
   // Objetivo semanal por serie cumplido: todas las series que tocan hechas y cada
   // una con al menos las reps marcadas. Devuelve null si no hay objetivo por serie.
   function hitGoal(ex, entry, tg) {
     if (!tg || !Array.isArray(tg.reps) || !tg.reps.length || ex.cardio) return null;
-    var need = setsDue(ex, tg);
+    var need = ex.top ? 1 : setsDue(ex, tg); // en serie top + descargas solo cuenta la top
     if (!entry || entry.s.length < need) return false;
     for (var i = 0; i < need; i++) {
       if (!(entry.s[i] && +entry.s[i][1] >= +repsGoal(tg, i))) return false;
     }
     return true;
+  }
+
+  // ¿Toca subir peso la semana que viene? Sin RIR no se cambia el peso. Serie top:
+  // 8 reps (tope) a RIR 2 o más. Resto: todas al tope del rango, o la última
+  // supera el objetivo en 2 o más, o la 1ª sale con RIR 3 o más. En la rampa, no.
+  function willRise(ex, entry, tg) {
+    var s = entry.s, r0 = s[0] && s[0][2];
+    if (r0 == null) return false;
+    if (ex.top) return s[0][1] >= ex.rmax && r0 >= 2;
+    if (tg && tg.sets) return false;
+    var due = setsDue(ex, tg);
+    var last = s[due - 1], lastGoal = repsGoal(tg, due - 1);
+    return r0 >= 3 ||
+      s.slice(0, due).every(function (x) { return x[1] >= ex.rmax; }) ||
+      !!(last && lastGoal != null && last[1] >= +lastGoal + 2);
   }
 
   // Series parejas: tope del rango en todas. Serie top: tope del rango en la 1ª.
@@ -734,12 +755,12 @@
     chips.innerHTML =
       '<span class="chip scheme">' + schemeTxt + '</span>' +
       (ex.opt ? '<span class="chip opt">extra</span>' : '') +
-      '<span class="chip">' + ex.rir + '</span>' +
+      '<span class="chip" data-rir>' + ex.rir + '</span>' +
       pairChip +
       ivChip +
       restChip +
       photoChip +
-      (ex.note ? '<span class="chip">' + ex.note + '</span>' : '') +
+      '<span class="chip" data-xnote' + (ex.note ? '' : ' hidden') + '>' + (ex.note || '') + '</span>' +
       '<span class="chip goal" data-goal hidden></span>' +
       '<span class="chip up" data-up hidden>' + (ex.hint || '▲ Sube peso') + '</span>';
     card.appendChild(chips);
@@ -817,6 +838,20 @@
     return inp;
   }
 
+  // ¿Le queda al otro ejercicio de la pareja alguna serie que toca? Un extra
+  // que no se ha empezado cuenta como quitado (versión mínima).
+  function pairPending(ex) {
+    return [].concat(ex.pair || []).some(function (id) {
+      var p = findEx(id), d = draft[id] || [];
+      if (!p) return false;
+      var due = setsDue(p, targetOf(id)), started = false, left = false;
+      for (var k = 0; k < due; k++) {
+        if (d[k] && d[k][F_DONE]) started = true; else left = true;
+      }
+      return left && (started || !p.opt);
+    });
+  }
+
   // La 1ª y la última serie que tocan son las que deciden el peso: su RIR hace falta
   function rirKeySet(ex, setIdx) {
     return !ex.cardio && (setIdx === 0 || setIdx === setsDue(ex, targetOf(ex.id)) - 1);
@@ -878,6 +913,12 @@
       inputs.forEach(function (inp) { if (+inp.dataset.field === F_REPS) inp.focus(); });
       return;
     }
+    // Sin kg no se confirma: un 0 escrito a propósito vale, una casilla vacía no
+    if (!ex.cardio && row[F_KG] == null) {
+      toast('Apunta los kg de la serie ' + (setIdx + 1) + ' primero');
+      inputs.forEach(function (inp) { if (+inp.dataset.field === F_KG) inp.focus(); });
+      return;
+    }
     row[F_DONE] = 1;
     persist(DRAFT_KEY, draft);
     paintDone(ex.id, setIdx, true);
@@ -903,11 +944,11 @@
         toast('Apunta el RIR cuando puedas');
       }
     }
-    // Última serie de las que tocan esta semana. En pareja (↔) también hay
-    // descanso: toca la serie del otro ejercicio.
+    // Última serie de las que tocan esta semana. En pareja (↔) hay descanso
+    // mientras al otro ejercicio le quede alguna serie.
     var isLast = setIdx >= setsDue(ex, targetOf(ex.id)) - 1;
     var secs = restSecs(exRest(ex));
-    if (secs > 0 && (!isLast || ex.pair)) {
+    if (secs > 0 && (!isLast || pairPending(ex))) {
       startRest(secs);
     } else if (isLast && rest.active && !rest.q) {
       stopRest();
@@ -954,12 +995,15 @@
         upEl.textContent = ex.hint || '▲ Sube peso';
         upEl.hidden = !(underTargets && hitTop(ex, entry));
       } else if (goalHit) {
+        var tgm = targetOf(ex.id);
         upEl.className = 'chip up';
-        upEl.textContent = '✔ Objetivo cumplido · la semana que viene sube';
+        upEl.textContent = tgm && tgm.sets
+          ? '✔ Referencia apuntada'
+          : '✔ Objetivo cumplido' + (willRise(ex, entry, tgm) ? ' · la semana que viene sube' : '');
         upEl.hidden = false;
       } else {
         upEl.className = 'chip miss';
-        upEl.textContent = '✗ Objetivo no cumplido · se repite';
+        upEl.textContent = '✗ Por debajo del objetivo · se ajusta con tu RIR';
         upEl.hidden = false;
       }
     } else {
@@ -970,11 +1014,26 @@
     var goalEl = card.querySelector('[data-goal]');
     var goalNote = card.querySelector('[data-goal-note]');
     var tg = targetOf(ex.id);
+    // La semana puede cambiar el RIR y la nota del ejercicio (rampa, vuelta tras un hueco)
+    var rirEl = card.querySelector('[data-rir]');
+    if (rirEl) rirEl.textContent = (tg && tg.rir) || ex.rir;
+    var xnEl = card.querySelector('[data-xnote]');
+    if (xnEl) {
+      var xn = (tg && tg.tip != null) ? tg.tip : (ex.note || '');
+      xnEl.textContent = xn;
+      xnEl.hidden = !xn;
+    }
+    // «Busca peso»: el kg de referencia no se copia solo, hay que escribir el que se use
+    var find = !!(tg && tg.find && !ex.cardio);
     if (goalEl) {
       if (ex.cardio) {
         goalEl.hidden = !(tg && tg.n);
         goalEl.textContent = tg && tg.n ? '🎯 ' + tg.n : '';
         tg = null; // la nota ya va en el chip
+      } else if (find) {
+        goalEl.hidden = false;
+        goalEl.textContent = '🎯 busca peso' + (tg.kg != null ? ' ~' + tg.kg + ' kg' : '') + ' · ' +
+          (tg.sets || ex.sets) + ' series' + (fmtRepsGoal(tg) ? ' · ' + fmtRepsGoal(tg) + ' reps' : '');
       } else if (tg && tg.kg != null) {
         goalEl.hidden = false;
         goalEl.textContent = '🎯 ' + (ex.top
@@ -1005,7 +1064,9 @@
       inp.classList.toggle('xrow', !ex.cardio && si >= due);
       if (!ex.cardio && tg && tg.sets && si >= tg.sets && f !== F_RIR) { inp.placeholder = ''; return; }
       var lastV = (entry && entry.s[si] != null && entry.s[si][f] != null) ? entry.s[si][f] : '';
-      if (f === F_KG && tg && tg.kg != null && !ex.cardio) {
+      if (f === F_KG && find) {
+        inp.placeholder = '';
+      } else if (f === F_KG && tg && tg.kg != null && !ex.cardio) {
         inp.placeholder = (ex.top && si > 0) ? (tg.back != null ? tg.back : backoffKg(tg.kg)) : tg.kg;
       } else if (f === F_REPS && !ex.cardio && repsGoal(tg, si) != null) {
         inp.placeholder = repsGoal(tg, si);
@@ -1079,14 +1140,18 @@
   ];
   function fmtNum(n) { return String(n).replace('.', ','); }
 
+  // Fechas distintas con series (una nota suelta, p. ej. «talón molesto, sin cardio», no cuenta)
   function uniqueDates(exIds) {
     var seen = {}, n = 0;
     exIds.forEach(function (id) {
       (log[id] || []).forEach(function (e) {
-        if (!seen[e.d]) { seen[e.d] = 1; n++; }
+        if (e.s && e.s.length && !seen[e.d]) { seen[e.d] = 1; n++; }
       });
     });
     return n;
+  }
+  function has4x4() {
+    return (log['cinta-4x4'] || []).some(function (e) { return e.s && e.s.length; });
   }
 
   // Velocidades de la semana (km/h) si el entrenador las fija en los pesos semanales
@@ -1101,11 +1166,16 @@
 
   // Qué toca: por defecto se deduce del historial; el entrenador puede fijar la
   // semana de fase 1 (1-4) o forzar '4x4' / 'z2' desde los pesos semanales.
+  // Sin indicación del entrenador manda lo último que fijó (escalón 1 si nunca hubo):
+  // el historial de fase 1 es de la tabla antigua y no sirve para deducir el escalón.
+  var CARDIO_KEY = 'rutina4.cardio.week';
   function cardioStatus() {
     var c = cardioCfg();
     var forced = c.week;
-    var done = uniqueDates(['cinta-progresion']);
-    var idx = (forced >= 1 && forced <= 4) ? forced - 1 : (forced ? -1 : done);
+    var isStep = forced >= 1 && forced <= 4;
+    if (isStep || forced === '4x4' || forced === 'z2') persist(CARDIO_KEY, isStep ? +forced : 'fase2');
+    else forced = load(CARDIO_KEY, 1);
+    var idx = (forced >= 1 && forced <= 4) ? forced - 1 : -1;
     if (idx >= 0 && idx < FASE1.length) {
       var wk = FASE1[idx];
       return { fase: 1, week: idx + 1, wk: wk,
@@ -1115,7 +1185,7 @@
     }
     var m = uniqueDates(['cinta-4x4', 'cinta-z2']) % 4;
     var z2 = forced === 'z2' || (forced !== '4x4' && m === 3);
-    var first4x4 = !(log['cinta-4x4'] || []).length;
+    var first4x4 = !has4x4();
     return z2
       ? { fase: 2, txt: 'Hoy toca · Zona 2: 40-45 min andando rápido en llano o en bici (semana 4 de 4, descarga)' + speedTxt() }
       : { fase: 2, txt: 'Hoy toca · Intervalos 4×4 (semana ' + (m + 1) + ' de 4 del ciclo)' +
@@ -1149,6 +1219,20 @@
   document.getElementById('saveBtn').addEventListener('click', function () {
     var day = PLAN.find(function (d) { return d.id === activeDay; });
     if (!day) return;
+    // Una serie con reps pero sin kg se guardaría como 0 kg: se pide antes
+    var noKg = null;
+    day.ex.forEach(function (ex) {
+      if (noKg || ex.cardio) return;
+      (draft[ex.id] || []).forEach(function (row, i) {
+        if (!noKg && i < ex.sets && row && row[F_REPS] > 0 && row[F_KG] == null) noKg = { ex: ex, i: i };
+      });
+    });
+    if (noKg) {
+      toast('Faltan los kg: ' + noKg.ex.name.split(' (')[0] + ', serie ' + (noKg.i + 1));
+      var kIn = document.querySelector('input[data-ex="' + noKg.ex.id + '"][data-set="' + noKg.i + '"][data-field="' + F_KG + '"]');
+      if (kIn) { kIn.scrollIntoView({ block: 'center' }); kIn.focus(); }
+      return;
+    }
     var today = new Date();
     var d = String(today.getDate()).padStart(2, '0') + '/' +
             String(today.getMonth() + 1).padStart(2, '0') + '/' +
@@ -1178,6 +1262,7 @@
       refreshExMeta(ex);
     });
     if (!saved) { toast('No hay series ni notas rellenas en ' + day.name); return; }
+    if (rest.active && !rest.q) stopRest(); // la sesión ha terminado: ningún descanso pendiente
     persist(LOG_KEY, log);
     persist(DRAFT_KEY, draft);
     persist(NOTE_KEY, notes);
@@ -1529,7 +1614,7 @@
     PLAN.forEach(function (day, i) {
       var ok = lastDayKey(day) >= wk0;
       if (ok) done++;
-      else if (i < todayIdx) pending.push(day.name);
+      else if (i < todayIdx && todayIdx <= 4) pending.push(day.name); // el finde no hay gimnasio: nada pendiente
       parts.push((ok ? '✓ ' : '') + day.name);
     });
     var txt = '📅 Esta semana <b>' + done + '/' + PLAN.length + '</b>: ' + parts.join(' · ');
@@ -1579,10 +1664,11 @@
   // ---- rest timer ----
   // Del texto del descanso toma el extremo alto ("2-3 min" → 180 s)
   function restSecs(rest) {
-    var m = rest.match(/\d+/g);
+    var s = rest == null ? '' : String(rest);
+    var m = s.match(/\d+/g);
     if (!m) return 0;
     var n = Math.max.apply(null, m.map(Number));
-    return rest.indexOf('min') > -1 ? n * 60 : n;
+    return s.indexOf('min') > -1 ? n * 60 : n;
   }
 
   var pill = document.getElementById('restPill');
@@ -2104,7 +2190,7 @@
       }
     } else {
       // La primera vez del 4×4, 3 rondas
-      var rounds = (log[ex.id] || []).length ? ex.sets : Math.min(3, ex.sets);
+      var rounds = has4x4() ? ex.sets : Math.min(3, ex.sets);
       for (var r = 1; r <= rounds; r++) {
         seq.push({ sec: ex.rmin * 60, work: true, lab: '💪 ' + r + '/' + rounds,
           msg: r < rounds ? 'Suave: ' + ex.rest + ' andando' : '¡Intervalos completados! Enfría 5 min andando' });
@@ -2231,6 +2317,50 @@
     syncDownloadTargets(true);
     if (sync.pending) syncUpload('reintento');
   }
+
+  // Al volver a una pestaña que seguía abierta: si ha cambiado el día, se recalcula
+  // lo que depende de la fecha; si hay una versión nueva publicada, se recarga
+  // (como mucho una comprobación cada 30 min; nunca a mitad de sesión, de un
+  // descanso o escribiendo en una casilla).
+  var shownKey = keyOf(new Date());
+  var BUILD = (document.querySelector('meta[name="app-build"]') || {}).content || '';
+  var lastBuildCheck = Date.now();
+  function checkBuild() {
+    if (!BUILD || Date.now() - lastBuildCheck < 30 * 60000) return;
+    if (rest.active || alarm.on) return;
+    if (sessStart && (Date.now() - sessStart.t) <= SESS_STALE_MS) return;
+    var ae = document.activeElement;
+    if (ae && ae.tagName === 'INPUT') return;
+    lastBuildCheck = Date.now();
+    fetch('./?b=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .then(function (html) {
+        var m = /name="app-build" content="([^"]+)"/.exec(html);
+        if (m && m[1] !== BUILD) location.reload();
+      })
+      .catch(function () {});
+  }
+  function onResume() {
+    if (document.visibilityState !== 'visible') return;
+    var k = keyOf(new Date());
+    if (k !== shownKey) {
+      shownKey = k;
+      var inS = !!(sessStart && (Date.now() - sessStart.t) <= SESS_STALE_MS);
+      var td = PLAN[new Date().getDay() - 1];
+      if (!inS && td) setDay(td.id);
+      refreshSessNotes();
+      refreshCardioNext();
+      refreshWeekLine();
+      refreshWkBox();
+      if (syncReady()) {
+        syncDownloadTargets(true);
+        if (sync.pending) syncUpload('reintento');
+      }
+    }
+    checkBuild();
+  }
+  document.addEventListener('visibilitychange', onResume);
+  window.addEventListener('pageshow', onResume);
 })();
 </script>
 
