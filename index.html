@@ -446,17 +446,17 @@
         { id: 'hip-thrust', name: 'Hip thrust en máquina', sets: 3, rmin: 8, rmax: 12, rest: '2 min', rir: 'RIR 2', opt: true, note: 'pausa 1 s arriba, sin arquear la lumbar · no pases del objetivo' },
         { id: 'gemelo-pie-b', name: 'Gemelo de pie', sets: 3, rmin: 12, rmax: 15, rest: '90 s', rir: 'RIR 1-2', note: 'sustituye al sentado · pausa 1-2 s abajo' },
         { id: 'abductor', name: 'Abductor en máquina', sets: 3, rmin: 12, rmax: 20, rest: '90 s', rir: 'RIR 1-2', opt: true, note: 'ABRIR: almohadillas por fuera de las rodillas, separa las piernas · vuelve despacio hasta cerrar, sin que choquen las placas' },
-        { id: 'crunch-declinado', name: 'Crunch declinado con disco', sets: 3, rmin: 10, rmax: 15, rest: '90 s', rir: 'RIR 1-2', opt: true, note: 'sin banco declinado: en el suelo, disco al pecho' }
+        { id: 'abs-b', name: 'Crunch en polea', sets: 3, rmin: 10, rmax: 15, rest: '90 s', rir: 'RIR 1-2', opt: true, note: 'sustituye al crunch declinado con disco · el mismo que el lunes, va el último' }
       ] },
     { id: 'torsoB', name: 'Torso B', tag: 'viernes', note: 'Volumen (~65 min, ~85 con la bici). Orden: press inclinado → jalón → remo en polea → contractora → laterales → curl inclinado → tríceps. Si vas justo: 4ª de inclinado → 3ª de remo y contractora → 3ª de curl y tríceps. Mínima (~45 min): inclinado, jalón, laterales, curl y tríceps. Bici al final si te da tiempo.',
       ex: [
         { id: 'inclinado-maquina', name: 'Press inclinado en máquina', sets: 4, rmin: 8, rmax: 12, rest: '2 min', rir: 'RIR 2 (la última, RIR 1)', note: 'aprox.: 50 %×8 y 75 %×4 · respaldo a 30-45°' },
-        { id: 'jalon', name: 'Jalón al pecho', sets: 3, rmin: 10, rmax: 12, rest: '2 min', rir: 'RIR 2', note: 'agarre 1-1,5 veces el ancho de hombros' },
+        { id: 'jalon', name: 'Jalón al pecho', sets: 3, rmin: 10, rmax: 12, rest: '2 min', rir: 'RIR 2', note: 'Life Fitness de palanca: eje de giro a la altura del hombro, codos abajo y atrás hasta el pecho alto' },
         { id: 'remo-polea', name: 'Remo en polea sentado', sets: 3, rmin: 10, rmax: 14, rest: '2 min', rir: 'RIR 1-2' },
         { id: 'contractora', name: 'Contractora (pec deck)', sets: 3, rmin: 12, rmax: 20, rest: '90 s', rir: 'RIR 1-2 · última al fallo técnico', note: 'manos a la altura del pecho o algo más abajo, codos algo flexionados' },
         { id: 'laterales', name: 'Elevaciones laterales', sets: 4, rmin: 12, rmax: 20, rest: '90 s', rir: 'RIR 1-2 · última al fallo técnico' },
         { id: 'curl-inclinado', name: 'Curl inclinado con mancuernas', sets: 3, rmin: 8, rmax: 15, rest: '90 s', rir: 'RIR 1-2, nunca al fallo' },
-        { id: 'triceps-mancuerna-cabeza', name: 'Extensión de tríceps con mancuerna sobre la cabeza', sets: 3, rmin: 10, rmax: 15, rest: '90 s', rir: 'RIR 1-2, nunca al fallo', note: 'sentado con respaldo, a dos manos · si molesta codo u hombro, vuelve al pushdown' },
+        { id: 'pushdown', name: 'Pushdown de tríceps en polea alta', sets: 3, rmin: 10, rmax: 15, rest: '90 s', rir: 'RIR 1-2, nunca al fallo', note: 'sustituye a la extensión con mancuerna · codos pegados al cuerpo y quietos, extiende del todo abajo y sube controlado hasta ~90°' },
         { id: 'bici-extra', name: 'Bici 15-20 min (2º cardio de la semana)', sets: 1, rmin: 15, rmax: 20, rest: '', rir: 'RPE 6-7', cardio: true, opt: true, note: 'pedaleo continuo, frases cortas · apunta nivel y minutos' }
       ] }
   ];
@@ -471,46 +471,45 @@
   // sets: series de esta semana si son menos que las del plan (rampa de entrada),
   // rest: descanso de esta semana si cambia (p. ej. más largo en la rampa) }.
   var TARGETS_BUILTIN = {
-    v: 2, week: '2026-10-22', label: 'Semana 22-26 oct · rutina nueva (rampa de entrada)',
-    note: 'Rutina nueva tras la revisión de evidencia. Series normales, un ejercicio detrás de otro, con el descanso que marca el temporizador: 3 min en sentadilla y press de pecho, 2 min en el resto de compuestos y 90 s en aislamientos. «extra» = solo si vas bien de tiempo y fuerzas. Compuestos a RIR 2: para en la 1ª rep claramente lenta o si se rompe la técnica; en sentadilla, rumano, remo en T, hip thrust y prensa, no pases del objetivo. Aislamientos a RIR 1-2. Rampa: la 1ª vez de cada sesión nueva, lo nuevo va a 2 series «busca peso» a RIR 3 (escribe los kg que uses) y nada al fallo. El viernes, Torso B vuelve tras 14 días: todo a RIR 3. Apunta siempre el RIR de la 1ª y la última serie.',
-    // cardio: escalón de fase 1 fijado (1-4), o '4x4' / 'z2'; velocidades en km/h
-    cardio: { week: 1, run: 7.5, walk: 5.5 },
-    // Por ejercicio, además: rir / tip = RIR y nota de esta semana (sustituyen a los
-    // del plan), find = «busca peso» (el kg no se copia solo: hay que escribirlo).
-    ex: {
-      'sentadilla-maquina': { kg: 45, back: 40, reps: [8, 7, 7, 7], n: 'top 45 a RIR 2 (el 19/10, 7 a RIR 3): busca 8. Descargas a 40: el 19/10 salieron 6-6-6 a RIR 3-2-1; busca 7 y para antes si llega la 1ª rep lenta (no pases de 7). Con la top en 8 a RIR 2 → 47,5' },
-      'rumano-multi': { kg: 110, reps: [8, 7, 6], n: 'el 19/10, 9-8-7 a RIR 1-1-0 con 3 min; ahora 2 min y RIR 2: 8-7-6. Para en la 1ª rep lenta o si se redondea la lumbar, y no pases del objetivo' },
-      'femoral-sentado-a': { kg: 65, reps: [9, 9, 9, 9], n: 'la 4ª es extra · el 19/10, 67,5×9-8-8 a RIR 1' },
-      'ext-cuadriceps-a': { kg: null, reps: [12, 12], sets: 2, find: true, rir: 'RIR 3 · busca peso', n: 'nueva el lunes: 2 series «busca peso» a RIR 3 (referencia: la del jueves)' },
-      'gemelo-pie': { kg: 90, reps: [9, 9, 8, 8], tip: 'esta vez sin pausa; desde la próxima, 1-2 s abajo · si la lumbar va cargada, en la prensa', n: 'rango nuevo 8-12' },
-      'prensa': { kg: 120, reps: [9, 9], n: 'extra: 2 series a RIR 2-3 (el 19/10, 130×9-8-8 con la última al fallo, y ahora va después de la extensión)' },
-      'abs-a': { kg: 31.5, reps: [11, 11, 10], n: 'extra · rango nuevo 10-15 (el 19/10, 11-11-11 a RIR 1-1-0)' },
-      'press-maquina': { kg: 72.5, back: 65, reps: [7, 8, 8, 8], n: 'top 72,5 a RIR 2; descargas a 65 hasta la 1ª rep lenta (la última, RIR 1)' },
-      'remo-t': { kg: 35, reps: [8, 8, 8, 8], n: 'el 20/10, 4×8 a RIR 3-1' },
-      'press-militar': { kg: 52.5, reps: [8, 8, 8], n: '3×8 a RIR 2 otra vez → 55' },
-      'dominadas-lastre': { kg: 15, reps: [8, 8, 7], n: 'el 20/10, 8-8-7 a RIR 1' },
-      'laterales-a': { kg: 35, reps: [13, 13, 12, 12], rir: 'RIR 1-2 · sin fallo (rampa)', n: 'nuevo el martes · se ajusta con lo que salga el viernes' },
-      'curl-barra': { kg: 31.5, reps: [11, 11, 10], n: 'rango nuevo 8-12' },
-      'pajaros': { kg: null, reps: [12, 12], sets: 2, find: true, rir: 'RIR 3 · busca peso', n: 'nuevo: 2 series «busca peso» a RIR 3' },
-      'press-frances': { kg: 24, reps: [11, 10, 9], n: 'el 20/10, 10-10-9 con la última a RIR 0' },
-      'cinta-progresion': { kg: 7.5, reps: '', n: 'repite 5×[4+2] a 7,5 (andar 5,5), cuesta 1 %. Ritmo de frases completas: si no puedes o el último bloque pasa de ~155 ppm, baja a 7. Si sale bien y el pie está en verde, la semana siguiente 4×[5,5+2]' },
-      'prensa-b': { kg: 115, reps: [12, 12], sets: 2, find: true, rir: 'RIR 3 · busca peso', n: '1ª vez (rampa): aprox. ~60×8 y ~85×4, y después 2 series a RIR 3 buscando peso (referencia ~115; el lunes, 130×9). Escribe los kg que uses' },
-      'femoral-sentado-b': { kg: 57.5, reps: [12, 12], sets: 2, rir: 'RIR 3', n: '1ª vez: 2 series a RIR 3 (el lunes 67,5×9; aquí más reps)' },
-      'ext-cuadriceps': { kg: 60, reps: [14, 14], sets: 2, find: true, rir: 'RIR 3 · busca peso', n: '1ª vez desde agosto (70×13): 2 series a RIR 3, busca peso (referencia ~60)' },
-      'hip-thrust': { kg: 100, reps: [10, 10], sets: 2, rir: 'RIR 3', n: 'extra · 1ª vez desde agosto (100×12): 2 series a RIR 3' },
-      'gemelo-pie-b': { kg: 75, reps: [12, 12], sets: 2, rir: 'RIR 3', tip: 'sustituye al sentado · esta vez sin pausa', n: '1ª vez: 2 series a RIR 3 (el lunes, 90×9-8)' },
-      'abductor': { kg: null, reps: [12, 12], sets: 2, find: true, rir: 'RIR 3 · busca peso', n: 'extra · nuevo: 2 series «busca peso» a RIR 3' },
-      'crunch-declinado': { kg: 10, reps: [12, 12], sets: 2, rir: 'RIR 3', n: 'extra · nuevo: disco de 10 al pecho, 2 series a RIR 3' },
-      'inclinado-maquina': { kg: null, reps: [10, 10], sets: 2, find: true, rir: 'RIR 3 · busca peso', tip: 'aprox.: 50 %×8 y 75 %×4 · respaldo a 30-45°', n: '1ª vez en máquina: 2 series «busca peso» a RIR 3 (10 reps)' },
-      'jalon': { kg: 67.5, reps: [11, 11, 10], rir: 'RIR 3', n: 'tras 14 días sin Torso B: −5 % (67,5) a RIR 3' },
-      'remo-polea': { kg: 54, reps: [11, 10, 10], rir: 'RIR 3', n: 'tras 14 días: las 3 a 54 a RIR 3' },
-      'contractora': { kg: null, reps: [14, 14, 13], find: true, rir: 'RIR 3 · busca peso', n: 'nuevo (sustituye a los cruces en polea): las 3 series a RIR 3 buscando peso · sin fallo hasta la 3ª vez' },
-      'laterales': { kg: 35, reps: [14, 13, 13, 12], rir: 'RIR 3 · sin fallo', n: 'peso fijo de 35 (antes, pirámide 42,5→32,5) · sin fallo hasta la 3ª vez' },
-      'curl-inclinado': { kg: 10, reps: [12, 12, 12], rir: 'RIR 3', n: 'rango nuevo 8-15: con 10 kg sube reps hasta 15 antes de pasar a 12' },
-      'triceps-mancuerna-cabeza': { kg: null, reps: [12, 12], sets: 2, find: true, rir: 'RIR 3 · busca peso', n: 'nuevo (sustituye al pushdown): 2 series «busca peso» a RIR 3, a dos manos' },
-      'bici-extra': { kg: null, reps: '', n: 'opcional: 15-20 min si te queda tiempo, a un nivel que te deje hablar en frases cortas' }
-    }
-  };
+ "v": 2,
+ "week": "2026-10-26",
+ "label": "Semana 26-30 oct · 1ª semana completa del plan nuevo",
+ "note": "Pierna B y Torso B ya salen de la rampa: 3 series (4 en inclinado y laterales) a RIR 1-2, con los pesos que marcaste el 22 y 23/10. Pierna A y Torso A hacen su 1ª vez con el plan nuevo: lo nuevo (extensión del lunes, laterales y pájaros del martes) va a RIR 3 y sin fallo. Cambios: el tríceps del viernes pasa a pushdown en polea y el crunch del jueves a polea (el disco era incómodo). Cardio sube al escalón 2: 4×[5,5+2] a 7,5. Descansos iguales: 3 min en sentadilla y press, 2 min en compuestos, 90 s en aislamientos. Compuestos: para en la 1ª rep claramente lenta y no pases del objetivo. Apunta siempre el RIR de la 1ª y la última serie. Peso 81,8 kg, sueño bien (23/10).",
+ "cardio": { "week": 2, "run": 7.5, "walk": 5.5 },
+ "ex": {
+  "sentadilla-maquina": { "kg": 45, "back": 40, "reps": [8, 7, 7, 7], "n": "top 45 a RIR 2 (el 19/10, 7 a RIR 3): busca 8. Descargas a 40: el 19/10 salieron 6-6-6 a RIR 3-2-1; busca 7 y para antes si llega la 1ª rep lenta (no pases de 7). Con la top en 8 a RIR 2 → 47,5" },
+  "rumano-multi": { "kg": 110, "reps": [8, 7, 6], "n": "el 19/10, 9-8-7 a RIR 1-1-0 con 3 min; ahora 2 min y RIR 2: 8-7-6. Para en la 1ª rep lenta o si se redondea la lumbar, y no pases del objetivo" },
+  "femoral-sentado-a": { "kg": 65, "reps": [9, 9, 9, 9], "n": "la 4ª es extra · el 19/10, 67,5×9-8-8 a RIR 1" },
+  "ext-cuadriceps-a": { "kg": 75, "reps": [12, 12], "sets": 2, "rir": "RIR 3", "n": "nueva el lunes: 2 series a RIR 3 con 75 (el jueves, 75×14-14 a RIR 3-1). Si la 1ª sale a RIR 4+, la 2ª a 80" },
+  "gemelo-pie": { "kg": 90, "reps": [9, 9, 8, 8], "tip": "ahora con pausa de 1-2 s abajo, sin rebote · si la lumbar va cargada, en la prensa", "n": "el 19/10 sin pausa, 90×9-8-8-8 a RIR 2. Con pausa, mismo peso y mismas reps" },
+  "prensa": { "kg": 120, "reps": [9, 9], "n": "extra: 2 series a RIR 2-3 (el 19/10, 130×9-8-8 con la última al fallo, y ahora va después de la extensión)" },
+  "abs-a": { "kg": 31.5, "reps": [11, 11, 10], "n": "extra · rango 10-15 (el 19/10, 11-11-11 a RIR 1-1-0)" },
+  "press-maquina": { "kg": 72.5, "back": 65, "reps": [7, 8, 8, 8], "n": "top 72,5 a RIR 2 (el 20/10, 7 a RIR 1); descargas a 65 hasta la 1ª rep lenta (la última, RIR 1)" },
+  "remo-t": { "kg": 35, "reps": [9, 9, 9, 8], "n": "el 20/10, 4×8 a RIR 3-3-2-1 → una rep más. Con 4×9 a RIR 2 → 37,5" },
+  "press-militar": { "kg": 52.5, "reps": [8, 8, 8], "n": "el 20/10, 3×8 a RIR 2-2-1. Otra vez 3×8 a RIR 2 → 55" },
+  "dominadas-lastre": { "kg": 15, "reps": [8, 8, 7], "n": "el 20/10, 8-8-7 a RIR 1. Cuando salga 8-8-8 a RIR 2 → 12,5 de contrapeso" },
+  "laterales-a": { "kg": 35, "reps": [13, 13, 12, 12], "rir": "RIR 1-2 · sin fallo (2ª vez)", "n": "nuevo el martes · el viernes 23/10, 35×14-13-11-11 a RIR 2-1-1-0: hombros abajo, sube con los codos hasta la horizontal" },
+  "curl-barra": { "kg": 31.5, "reps": [11, 11, 10], "n": "el 20/10, 11-10-10 a RIR 3-2-1 · rango 8-12" },
+  "pajaros": { "kg": null, "reps": [12, 12], "sets": 2, "find": true, "rir": "RIR 3 · busca peso", "n": "nuevo: 2 series «busca peso» a RIR 3 (escribe los kg que uses)" },
+  "press-frances": { "kg": 24, "reps": [11, 10, 9], "n": "el 20/10, 10-10-9 con la última a RIR 0" },
+  "cinta-progresion": { "kg": 7.5, "reps": "", "n": "escalón 2: 4×[5,5 corriendo a 7,5 + 2 andando a 5,5], cuesta 1 %. El 21/10 el último bloque acabó en 153 ppm: bien. Si el último bloque pasa de ~165 ppm o no puedes hablar, la semana que viene repites este escalón" },
+  "prensa-b": { "kg": 125, "reps": [12, 11, 11], "tip": "asiento al 1 · ≈90° de rodilla, sacro apoyado · para en la 1ª rep lenta", "n": "el 22/10, 120×12-12 a RIR 3-2 → 125 y ya 3 series a RIR 2" },
+  "femoral-sentado-b": { "kg": 57.5, "reps": [13, 12, 12], "tip": "máquina al 3 · tronco inclinado adelante", "n": "el 22/10, 57,5×12-12 a RIR 3-2 → 3 series, una rep más. Con 13-13-13 a RIR 2 → 60" },
+  "ext-cuadriceps": { "kg": 75, "reps": [14, 13, 12], "n": "el 22/10, 75×14-14 a RIR 3-1 → 3 series. Que queme con tantas reps es normal y es lo que buscamos; para si molesta la rodilla" },
+  "hip-thrust": { "kg": 100, "reps": [12, 11, 10], "n": "extra · el 22/10, 100×11-10 a RIR 3-2 → 3 series. Con 12-11-11 a RIR 2 → 105" },
+  "gemelo-pie-b": { "kg": 75, "reps": [14, 13, 12], "tip": "pausa de 1-2 s abajo, sin rebote", "n": "el 22/10 sin pausa, 75×12-15 a RIR 4-1. Con pausa, mismo peso. Si sale 15-15-15 a RIR 2 → 80" },
+  "abductor": { "kg": 80, "reps": [14, 13, 12], "n": "extra · el 22/10, 80×12-12 a RIR 3-2 → 3 series. Con 3×15 a RIR 2 → 85" },
+  "abs-b": { "kg": 31.5, "reps": [11, 11, 10], "n": "extra · sustituye al crunch declinado (el disco de 10 era incómodo): mismo peso que el lunes, sin fallo" },
+  "inclinado-maquina": { "kg": 72.5, "reps": [10, 9, 9, 8], "tip": "asiento al 4 · aprox.: 50 %×8 y 75 %×4 · la última a RIR 1", "n": "el 23/10, 65×10-10 a RIR 4 → 72,5 y ya 4 series a RIR 2. Si solo hay placas de 5, pon 75 y para en la 1ª rep lenta" },
+  "jalon": { "kg": 70, "reps": [11, 11, 10], "tip": "Life Fitness de palanca: eje de giro a la altura del hombro, codos abajo y atrás hasta el pecho alto", "n": "el 23/10, 67,5×11-11-10 a RIR 3, clavado → 70 a RIR 2" },
+  "remo-polea": { "kg": 54, "reps": [12, 11, 11], "n": "el 23/10, 54×11-10-10 a RIR 2 → una rep más. La siguiente placa es 63 (salto grande): antes de pasar, llega a 14-13-13 a RIR 2" },
+  "contractora": { "kg": 55, "reps": [14, 14, 13], "rir": "RIR 2 · sin fallo (2ª vez)", "tip": "mangos a la altura del pecho medio, codos a 15-20°, empuja con los antebrazos y piensa en juntar los codos", "n": "el 23/10, 50×14-14-13 a RIR 4-4-3 → 55. Si notas el bíceps, cambia la altura del asiento (prueba el 4) en vez de adelantar el culo" },
+  "laterales": { "kg": 35, "reps": [14, 13, 12, 12], "rir": "RIR 1-2 · sin fallo (2ª vez)", "tip": "eje de giro a la altura del hombro, rodillos justo encima del codo, sube hasta la horizontal", "n": "el 23/10, 35×14-13-11-11 a RIR 2-1-1-0. Mismo peso; corta la 4ª a RIR 1" },
+  "curl-inclinado": { "kg": 10, "reps": [12, 12, 10], "rir": "RIR 1-2, nunca al fallo", "tip": "respaldo a 45-60° · codos quietos, atrás del tronco", "n": "el 23/10, 10×12-12-9 a RIR 5-2-0: corta la 3ª a RIR 1 aunque no llegues a 10. Con 15-15-13 a RIR 2 → 12" },
+  "pushdown": { "kg": 27, "reps": [12, 12, 11], "n": "sustituye a la extensión con mancuerna (incómoda). El 23/10, pushdown 24×12-12 a RIR 4 → la placa de ~27. Con 15-15-14 a RIR 2 → 31" },
+  "bici-extra": { "kg": null, "reps": "", "n": "opcional: 15-20 min de bici, o cinta andando con cuesta (el 23/10 la pusiste al 15) · frases cortas · apunta nivel o cuesta y minutos" }
+ }
+};
 
   // Fila del borrador: [kg, reps, rir, done]
   var F_KG = 0, F_REPS = 1, F_RIR = 2, F_DONE = 3;
